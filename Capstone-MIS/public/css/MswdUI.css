@@ -1,0 +1,272 @@
+/* ===============================
+   ROOT VARIABLES & BASE STYLES
+   =============================== */
+:root {
+  --sidebar-width: 260px;
+  --collapsed-width: 70px;
+  --accent: #0d6efd;
+  --card-shadow: 0 8px 24px rgba(2,6,23,0.06);
+  --transition: all 0.3s ease-in-out;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+
+  /* Font Sizes */
+  --font-base: 15px;
+  --font-small: 14px;
+  --font-large: 16px;
+  --font-title: 18px;
+}
+
+body {
+  background: #f6f8fb;
+  color: #222;
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-base);
+  line-height: 1.5;
+}
+
+/* ===============================
+   SIDEBAR STYLES
+   =============================== */
+.sidebar {
+  width: var(--sidebar-width);
+  background: #fff;
+  border-right: 1px solid #eef1f6;
+  padding: 1rem;
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
+  position: relative;
+  z-index: 1050;
+  font-size: var(--font-base);
+}
+
+.sidebar .sidebar-brand {
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sidebar .brand-text {
+  display: block;
+  font-size: var(--font-title);
+  font-weight: 600;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .7rem .6rem;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: .3rem;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-size: var(--font-large);
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background: #f1f5f9;
+  color: var(--accent);
+}
+
+.nav-link i {
+  font-size: 1.3rem;
+}
+
+.sidebar-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.sidebar-actions button {
+  font-size: var(--font-small);
+}
+
+/* ===============================
+   COLLAPSED SIDEBAR (DESKTOP)
+   =============================== */
+.sidebar.collapsed {
+  width: var(--collapsed-width);
+  padding: 1rem 0.5rem;
+  overflow-x: hidden;
+}
+
+.sidebar.collapsed .brand-text {
+  display: none;
+}
+
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: .7rem 0;
+  font-size: 0;
+}
+
+.sidebar.collapsed .nav-link i {
+  font-size: 1.4rem;
+}
+
+.sidebar.collapsed .sidebar-actions {
+  display: none;
+}
+
+/* Tooltip when sidebar is collapsed */
+.sidebar.collapsed .nav-link[data-bs-toggle="tooltip"] {
+  position: relative;
+}
+
+/* ===============================
+   TOPBAR STYLES
+   =============================== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .9rem 1.25rem;
+  background: #fff;
+  border-bottom: 1px solid #eef1f6;
+  box-shadow: var(--card-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1040;
+  font-size: var(--font-base);
+}
+
+#sidebar-toggle {
+  font-size: 1.3rem;
+  padding: .5rem .8rem;
+  border: none;
+  background: #f8f9fa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#sidebar-toggle:hover {
+  background: #e9ecef;
+}
+
+/* ===============================
+   STAT CARDS & TABLES
+   =============================== */
+.stat-card {
+  padding: 1.2rem;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease;
+  font-size: var(--font-large);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.card {
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  font-size: var(--font-base);
+}
+
+.card-header h5 {
+  font-size: var(--font-title);
+  font-weight: 600;
+}
+
+.card-header small {
+  font-size: var(--font-small);
+}
+
+.table {
+  font-size: var(--font-base);
+}
+
+.table thead th {
+  font-size: var(--font-large);
+  font-weight: 600;
+  background: #f8f9fa;
+}
+
+.table td {
+  font-size: var(--font-base);
+  vertical-align: middle;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+.btn {
+  font-size: var(--font-small);
+  padding: .45rem .9rem;
+}
+
+.btn-sm {
+  font-size: var(--font-small);
+  padding: .3rem .7rem;
+}
+
+/* ===============================
+   MOBILE VIEW STYLES
+   =============================== */
+@media (max-width: 991px) {
+  /* Sidebar turns into drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    z-index: 1060;
+    padding-top: 1rem;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  /* Overlay when sidebar is open */
+  body.sidebar-open::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1055;
+  }
+
+  /* Adjust content padding */
+  #mswd-app {
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: .8rem 1rem;
+    font-size: var(--font-large);
+  }
+
+  .nav-link {
+    font-size: var(--font-large);
+    padding: .8rem;
+  }
+
+  .stat-card {
+    margin-bottom: 1rem;
+    font-size: var(--font-large);
+  }
+
+  .table-responsive {
+    margin-bottom: 1rem;
+  }
+}
