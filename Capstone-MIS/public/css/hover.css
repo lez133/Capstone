@@ -23,9 +23,12 @@
 }
 
 .card-delay-2 {
-    animation-delay: 0.4s;
+    animation-delay: 0.3s;
 }
 
 .card-delay-3 {
-    animation-delay: 0.6s;
+    animation-delay: 0.4s;
+}
+.card-delay-4 {
+    animation-delay: 0.5s;
 }

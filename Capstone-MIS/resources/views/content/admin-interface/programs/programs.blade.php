@@ -44,9 +44,21 @@
             <div class="card hover-card shadow-sm card-appear card-delay-3">
                 <div class="card-body text-center">
                     <i class="fas fa-hands-helping fa-3x text-warning mb-3"></i>
-                    <h5 class="card-title">Add Aid Program</h5>
+                    <h5 class="card-title">Add & View Aid Program</h5>
                     <p class="card-text">Create and manage aid programs to assist beneficiaries effectively.</p>
                     <a href="{{ route('aid-programs.index') }}" class="btn btn-warning">Add Aid Program</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Schedule Card -->
+        <div class="col-md-4">
+            <div class="card hover-card shadow-sm card-appear card-delay-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Create & Manage Schedules</h5>
+                    <p class="card-text">Create schedules for aid programs, select barangays, and manage event details.</p>
+                    <a href="{{ route('schedules.index') }}" class="btn btn-info">Manage Schedules</a>
                 </div>
             </div>
         </div>

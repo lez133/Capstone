@@ -21,6 +21,14 @@
         </a>
     </div>
 
+    <!-- Search Form -->
+    <div class="mb-4">
+        <form method="GET" action="{{ route('barangays.index') }}" class="d-flex">
+            <input type="text" name="search" class="form-control me-2" placeholder="Search Barangays..." value="{{ $search ?? '' }}">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
+        </form>
+    </div>
+
     <div class="row g-3 mb-4">
         <!-- Add Barangay Card -->
         <div class="col-md-4 col-12">
@@ -78,18 +86,27 @@
                         <th>#</th>
                         <th><i class="fa fa-map-marker-alt"></i> Name</th>
                         <th><i class="fa fa-calendar"></i> Added</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($barangays as $i => $barangay)
                         <tr>
                             <td>{{ $i+1 }}</td>
-                            <td>{{ $barangay->barangay_name }}</td> <!-- Updated column name -->
+                            <td>{{ $barangay->barangay_name }}</td>
                             <td>{{ $barangay->created_at->format('Y-m-d') }}</td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{ $barangay->id }}" data-name="{{ $barangay->barangay_name }}">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ $barangay->id }}">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center text-muted">No barangays found.</td>
+                            <td colspan="4" class="text-center text-muted">No barangays found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -97,24 +114,80 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Barangay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="" id="editForm">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="barangay_name" class="form-label">Barangay Name</label>
+                        <input type="text" name="barangay_name" id="barangay_name" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Barangay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="" id="deleteForm">
+                @csrf
+                @method('DELETE')
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this barangay?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.add-field').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const group = document.createElement('div');
-            group.className = 'input-group mb-2';
-            group.innerHTML = `
-                <input type="text" name="names[]" class="form-control" placeholder="Barangay Name" required>
-                <button type="button" class="btn btn-outline-danger remove-field" title="Remove"><i class="fa fa-minus"></i></button>
-            `;
-            document.getElementById('barangay-fields').appendChild(group);
-        });
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+
+    editModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        const id = button.getAttribute('data-id'); // Get the ID from the button
+        const name = button.getAttribute('data-name'); // Get the name from the button
+
+        // Update the form action dynamically
+        editForm.action = `{{ url('admin/programs/barangays/update') }}/${id}`;
+        document.getElementById('barangay_name').value = name; // Set the name in the input field
     });
-    document.getElementById('barangay-fields').addEventListener('click', function(e) {
-        if (e.target.closest('.remove-field')) {
-            e.target.closest('.input-group').remove();
-        }
+
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteForm');
+
+    deleteModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget; // Button that triggered the modal
+        const id = button.getAttribute('data-id'); // Get the ID from the button
+
+        // Update the form action dynamically
+        deleteForm.action = `{{ url('admin/programs/barangays/delete') }}/${id}`;
     });
 });
 </script>

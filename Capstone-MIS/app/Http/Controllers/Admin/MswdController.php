@@ -2,27 +2,34 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\MSWDMember;
+use App\Models\SeniorCitizenBeneficiary;
+use App\Models\Barangay;
+use App\Models\AidProgram;
 
 class MswdController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        // sample data — replace with real queries in your controllers
-        $stats = [
-            'total_beneficiaries' => 1248,
-            'scheduled_distributions' => 8,
-            'pending_verifications' => 23,
-            'unread_notifications' => 5,
-        ];
+        // Fetch total counts
+        $totalBeneficiaries = SeniorCitizenBeneficiary::count();
+        $totalBarangays = Barangay::count();
+        $totalAidPrograms = AidProgram::count();
 
-        $recent = collect([
-            ['id'=>1,'name'=>'Juan Dela Cruz','type'=>'PWD','barangay'=>'Poblacion','contact'=>'09170000001','status'=>'Pending','last_aid'=>'2025-08-12'],
-            ['id'=>2,'name'=>'Maria Santos','type'=>'Senior','barangay'=>'Poblacion','contact'=>'09170000002','status'=>'Verified','last_aid'=>'2025-07-20'],
-            ['id'=>3,'name'=>'Pedro Reyes','type'=>'PWD','barangay'=>'Burgos','contact'=>'09170000003','status'=>'Pending','last_aid'=>'2025-06-04'],
-        ]);
+        // Fetch recent beneficiaries (limit to 5)
+        $recentBeneficiaries = SeniorCitizenBeneficiary::with('barangay')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-        return view('content.admin-interface.dashboard.mswd-interface', compact('stats','recent'));
+        // Fetch all aid programs
+        $aidPrograms = AidProgram::orderBy('aid_program_name')->get();
+
+        return view('content.admin-interface.dashboard.mswd-interface', compact(
+            'totalBeneficiaries',
+            'totalBarangays',
+            'totalAidPrograms',
+            'recentBeneficiaries',
+            'aidPrograms'
+        ));
     }
 }

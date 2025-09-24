@@ -39,9 +39,9 @@
             @if($aidProgram->background_image)
                 <img src="{{ asset('storage/' . $aidProgram->background_image) }}" alt="Background Image">
             @elseif($aidProgram->default_background)
-                <img src="{{ asset('images/' . $aidProgram->default_background) }}" alt="Default Background">
+                <img src="{{ asset('img/' . $aidProgram->default_background) }}" alt="Default Background">
             @else
-                <img src="{{ asset('images/default-placeholder.jpg') }}" alt="Placeholder Image">
+                <img src="{{ asset('img/default-placeholder.jpg') }}" alt="Placeholder Image">
             @endif
 
             <!-- Program Details -->

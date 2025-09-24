@@ -37,4 +37,9 @@ class MSWDMember extends Authenticatable
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function scopeBrgyRepresentatives($query)
+    {
+        return $query->where('role', 'brgy_representative');
+    }
 }

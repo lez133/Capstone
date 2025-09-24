@@ -16,13 +16,23 @@
   --font-title: 18px;
 }
 
-body {
-  background: #f6f8fb;
-  color: #222;
+/* Make full-height layout so main can be the only scroll container */
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
+  background: #f6f8fb;
+  color: #222;
   font-size: var(--font-base);
   line-height: 1.5;
+}
+
+#mswd-app {
+  display: flex;
+  align-items: stretch;
+  height: 100vh;   /* full viewport height */
+  min-height: 100vh;
+  overflow: hidden; /* important: prevent body scrollbar; main will scroll */
 }
 
 /* ===============================
@@ -30,14 +40,33 @@ body {
    =============================== */
 .sidebar {
   width: var(--sidebar-width);
+  flex: 0 0 var(--sidebar-width);   /* fixed width column in flex layout */
   background: #fff;
   border-right: 1px solid #eef1f6;
   padding: 1rem;
   box-shadow: var(--card-shadow);
   transition: var(--transition);
-  position: relative;
   z-index: 1050;
   font-size: var(--font-base);
+
+  /* keep it fixed in viewport — won't scroll when main scrolls */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: visible; /* do not show internal scrollbars */
+  display: flex;
+  flex-direction: column;
+}
+
+/* keep header fixed at top of sidebar and content below */
+.sidebar .sidebar-header {
+  flex: 0 0 auto;
+}
+.sidebar-content {
+  flex: 1 1 auto;
+  overflow: hidden; /* no internal scrollbars */
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar .sidebar-brand {
@@ -72,56 +101,43 @@ body {
   color: var(--accent);
 }
 
-.nav-link i {
-  font-size: 1.3rem;
-}
+.nav-link i { font-size: 1.3rem; }
 
-.sidebar-actions {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: .6rem;
-}
-
-.sidebar-actions button {
-  font-size: var(--font-small);
-}
+.sidebar-actions { margin-top: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+.sidebar-actions button { font-size: var(--font-small); }
 
 /* ===============================
    COLLAPSED SIDEBAR (DESKTOP)
    =============================== */
 .sidebar.collapsed {
   width: var(--collapsed-width);
+  flex: 0 0 var(--collapsed-width);
   padding: 1rem 0.5rem;
   overflow-x: hidden;
 }
 
-.sidebar.collapsed .brand-text {
-  display: none;
-}
-
-.sidebar.collapsed .nav-link {
-  justify-content: center;
-  padding: .7rem 0;
-  font-size: 0;
-}
-
-.sidebar.collapsed .nav-link i {
-  font-size: 1.4rem;
-}
-
-.sidebar.collapsed .sidebar-actions {
-  display: none;
-}
+.sidebar.collapsed .brand-text { display: none; }
+.sidebar.collapsed .nav-link { justify-content: center; padding: .7rem 0; font-size: 0; }
+.sidebar.collapsed .nav-link i { font-size: 1.4rem; }
+.sidebar.collapsed .sidebar-actions { display: none; }
 
 /* Tooltip when sidebar is collapsed */
-.sidebar.collapsed .nav-link[data-bs-toggle="tooltip"] {
-  position: relative;
-}
+.sidebar.collapsed .nav-link[data-bs-toggle="tooltip"] { position: relative; }
 
 /* ===============================
-   TOPBAR STYLES
+   MAIN / TOPBAR (MAIN IS SCROLLABLE)
    =============================== */
+/* Make main the scrolling area. Crucial: min-height: 0 so flex child can overflow. */
+main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;         /* allows overflow to work inside flex */
+  overflow: auto;        /* <-- ONLY main scrolls */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* topbar stays sticky at top of the main scroll area */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -136,137 +152,64 @@ body {
   font-size: var(--font-base);
 }
 
-#sidebar-toggle {
-  font-size: 1.3rem;
-  padding: .5rem .8rem;
-  border: none;
-  background: #f8f9fa;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-#sidebar-toggle:hover {
-  background: #e9ecef;
-}
+#sidebar-toggle { font-size: 1.3rem; padding: .5rem .8rem; border: none; background: #f8f9fa; border-radius: 6px; cursor: pointer; transition: background 0.2s ease; }
+#sidebar-toggle:hover { background: #e9ecef; }
 
 /* ===============================
    STAT CARDS & TABLES
    =============================== */
-.stat-card {
-  padding: 1.2rem;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.2s ease;
-  font-size: var(--font-large);
-}
+.stat-card { padding: 1.2rem; border-radius: 10px; background: #fff; box-shadow: var(--card-shadow); transition: transform 0.2s ease; font-size: var(--font-large); }
+.stat-card:hover { transform: translateY(-2px); }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-}
+.card { border-radius: 10px; box-shadow: var(--card-shadow); overflow: hidden; font-size: var(--font-base); }
+.card-header h5 { font-size: var(--font-title); font-weight: 600; }
+.card-header small { font-size: var(--font-small); }
 
-.card {
-  border-radius: 10px;
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
-  font-size: var(--font-base);
-}
+.table { font-size: var(--font-base); }
+.table thead th { font-size: var(--font-large); font-weight: 600; background: #f8f9fa; }
+.table td { font-size: var(--font-base); vertical-align: middle; }
 
-.card-header h5 {
-  font-size: var(--font-title);
-  font-weight: 600;
-}
-
-.card-header small {
-  font-size: var(--font-small);
-}
-
-.table {
-  font-size: var(--font-base);
-}
-
-.table thead th {
-  font-size: var(--font-large);
-  font-weight: 600;
-  background: #f8f9fa;
-}
-
-.table td {
-  font-size: var(--font-base);
-  vertical-align: middle;
-}
-
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 /* ===============================
    BUTTONS
    =============================== */
-.btn {
-  font-size: var(--font-small);
-  padding: .45rem .9rem;
-}
-
-.btn-sm {
-  font-size: var(--font-small);
-  padding: .3rem .7rem;
-}
+.btn { font-size: var(--font-small); padding: .45rem .9rem; }
+.btn-sm { font-size: var(--font-small); padding: .3rem .7rem; }
 
 /* ===============================
-   MOBILE VIEW STYLES
+   MOBILE VIEW STYLES (drawer)
    =============================== */
 @media (max-width: 991px) {
-  /* Sidebar turns into drawer */
   .sidebar {
-    position: fixed;
+    position: fixed;      /* mobile drawer */
     top: 0;
     left: 0;
-    height: 100vh;
     transform: translateX(-100%);
+    height: 100vh;
     z-index: 1060;
     padding-top: 1rem;
   }
 
-  .sidebar.show {
-    transform: translateX(0);
-  }
+  .sidebar.show { transform: translateX(0); }
 
-  /* Overlay when sidebar is open */
+  /* lock background scrolling when drawer is open */
+  body.sidebar-open { overflow: hidden; }
+
+  /* overlay when sidebar is open (using pseudo element) */
   body.sidebar-open::before {
     content: "";
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
     z-index: 1055;
   }
 
-  /* Adjust content padding */
-  #mswd-app {
-    flex-direction: column;
-  }
-
-  .topbar {
-    padding: .8rem 1rem;
-    font-size: var(--font-large);
-  }
-
-  .nav-link {
-    font-size: var(--font-large);
-    padding: .8rem;
-  }
-
-  .stat-card {
-    margin-bottom: 1rem;
-    font-size: var(--font-large);
-  }
-
-  .table-responsive {
-    margin-bottom: 1rem;
-  }
+  /* ensure main keeps functioning */
+  #mswd-app { align-items: stretch; }
+  .topbar { padding: .8rem 1rem; font-size: var(--font-large); }
+  .nav-link { font-size: var(--font-large); padding: .8rem; }
+  .stat-card { margin-bottom: 1rem; font-size: var(--font-large); }
+  .table-responsive { margin-bottom: 1rem; }
 }

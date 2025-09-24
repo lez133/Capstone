@@ -9,10 +9,16 @@ use Illuminate\Support\Facades\Response;
 
 class BarangayController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $barangays = Barangay::orderBy('barangay_name')->get();
-        return view('content.admin-interface.programs.barangays.barangay', compact('barangays'));
+        $search = $request->input('search'); // Get the search query from the request
+
+        // Filter barangays based on the search query
+        $barangays = Barangay::when($search, function ($query, $search) {
+            return $query->where('barangay_name', 'LIKE', "%{$search}%");
+        })->orderBy('barangay_name')->get();
+
+        return view('content.admin-interface.programs.barangays.barangay', compact('barangays', 'search'));
     }
 
     public function store(Request $request)
@@ -48,5 +54,27 @@ class BarangayController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="barangays.csv"',
         ]);
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'barangay_name' => 'required|string|max:255|unique:barangays,barangay_name,' . $id,
+        ]);
+
+        $barangay = Barangay::findOrFail($id);
+        $barangay->update(['barangay_name' => $request->barangay_name]);
+
+        return back()->with('success', 'Barangay updated successfully!');
+    }
+
+
+    public function destroy($id)
+    {
+        $barangay = Barangay::findOrFail($id);
+        $barangay->delete();
+
+        return back()->with('success', 'Barangay deleted successfully!');
     }
 }

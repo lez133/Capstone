@@ -3,7 +3,7 @@
 @section('title', 'Aid Programs')
 
 @section('content')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 <link rel="stylesheet" href="{{ asset('css/AidAssistance.css') }}">
 
 <div class="container py-4">
@@ -27,8 +27,8 @@
                 $backgroundImage = $aidProgram->background_image
                     ? asset('storage/' . $aidProgram->background_image)
                     : ($aidProgram->default_background
-                        ? asset('images/' . $aidProgram->default_background)
-                        : asset('images/default-placeholder.jpg'));
+                        ? asset('img/' . $aidProgram->default_background)
+                        : asset('img/default-placeholder.jpg'));
             @endphp
 
             <div class="col-md-4 col-sm-6">

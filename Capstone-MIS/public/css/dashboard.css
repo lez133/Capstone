@@ -1,0 +1,78 @@
+/* Lock carousel height */
+.carousel-inner {
+    height: 200px; /* Fixed height for all slides */
+}
+
+/* Each carousel item fills the container */
+.carousel-item {
+    height: 100%; /* Ensure the item fills the carousel height */
+}
+
+/* Images fill their parent without stretching */
+.carousel-item img {
+    width: 100%;
+    height: 200px; /* Set the height of the images */
+    object-fit: cover; /* Crop instead of stretch */
+    object-position: center; /* Center the cropped image */
+    border: 2px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Semi-transparent overlay for carousel captions */
+.carousel-caption {
+    position: absolute;
+    top: 50%; /* Position the caption in the middle of the carousel */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the caption horizontally and vertically */
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background for better readability */
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 0.9rem; /* Adjust font size to fit within the limited space */
+}
+
+/* Adjust text color for better visibility */
+.carousel-caption h5 {
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+    margin-bottom: 5px; /* Add spacing between the title and description */
+    font-size: 1rem; /* Slightly smaller font size */
+}
+
+.carousel-caption p {
+    color: #f1f1f1;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    font-size: 0.85rem; /* Smaller font size for the description */
+}
+
+/* Style for carousel navigation buttons */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    width: 40px; /* Slightly smaller buttons */
+    height: 40px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid #fff;
+}
+
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Adjust the position of the navigation buttons */
+.carousel-control-prev,
+.carousel-control-next {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Limit the height of the carousel */
+#aidProgramsCarousel {
+    max-height: 200px; /* Set the maximum height for the carousel */
+    overflow: hidden; /* Prevent content from overflowing */
+}

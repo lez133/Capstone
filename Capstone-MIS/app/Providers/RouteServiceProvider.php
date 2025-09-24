@@ -17,9 +17,9 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip())->response(function () {
-                return response()->json([
-                    'message' => 'Too many login attempts. Please try again in 60 seconds.'
+            return Limit::perMinute(3)->by($request->ip())->response(function () {
+                return response()->view('errors.too-many-requests', [
+                    'message' => 'Too many login attempts. Please try again in 60 seconds.',
                 ], 429);
             });
         });
