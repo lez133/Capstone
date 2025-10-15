@@ -6,6 +6,8 @@ use App\Models\Barangay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class BarangayController extends Controller
 {
@@ -56,6 +58,41 @@ class BarangayController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+    {
+        // If caller passed a "barangay" param, require it to be an encrypted string.
+        if ($request->filled('barangay')) {
+            $raw = $request->input('barangay');
+
+            // Block plain numeric IDs
+            if (ctype_digit((string) $raw)) {
+                return response()->json(['message' => 'Invalid parameter'], 400);
+            }
+
+            // Try to decrypt; if decryption fails, reject
+            try {
+                $decryptedId = Crypt::decryptString($raw);
+            } catch (DecryptException $e) {
+                return response()->json(['message' => 'Invalid parameter'], 400);
+            }
+
+            // Ensure decrypted value is a valid id
+            if (!is_numeric($decryptedId)) {
+                return response()->json(['message' => 'Invalid parameter'], 400);
+            }
+
+            $barangay = Barangay::find((int)$decryptedId);
+            return response()->json($barangay ? [$barangay] : []);
+        }
+
+        // Normal live-search (no barangay param)
+        $search = $request->input('search');
+        $barangays = Barangay::when($search, function ($q, $s) {
+            $q->where('barangay_name', 'LIKE', "%{$s}%");
+        })->orderBy('barangay_name')->get();
+
+        return response()->json($barangays);
+    }
 
     public function update(Request $request, $id)
     {

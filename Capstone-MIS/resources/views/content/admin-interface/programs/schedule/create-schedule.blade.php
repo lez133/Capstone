@@ -26,22 +26,23 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="beneficiary_type" class="form-label">Beneficiary Type</label>
+                    <select name="beneficiary_type" id="beneficiary_type" class="form-select" required>
+                        <option value="">Select Beneficiary Type</option>
+                        <option value="senior">Senior Citizens</option>
+                        <option value="pwd">Persons with Disabilities</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="barangay-section" style="display: none;">
                     <label for="barangay_ids" class="form-label">Select Barangays</label>
-                    <select name="barangay_ids[]" id="barangay_ids" class="form-select" multiple required>
+                    <select name="barangay_ids[]" id="barangay_ids" class="form-select" multiple>
                         @foreach ($barangays as $barangay)
                             <option value="{{ $barangay->id }}">{{ $barangay->barangay_name }}</option>
                         @endforeach
                     </select>
                     <small class="text-muted">Search, select multiple barangays, or select all.</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="beneficiary_type" class="form-label">Beneficiary Type</label>
-                    <select name="beneficiary_type" id="beneficiary_type" class="form-select" required>
-                        <option value="senior">Senior Citizens</option>
-                        <option value="pwd">Persons with Disabilities</option>
-                        <option value="both">Both</option>
-                    </select>
                 </div>
 
                 <div class="mb-3">
@@ -65,50 +66,93 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const beneficiaryType = document.getElementById('beneficiary_type');
+        const barangaySection = document.getElementById('barangay-section');
         const barangaySelect = document.getElementById('barangay_ids');
-        const choices = new Choices(barangaySelect, {
-            removeItemButton: true,
-            searchEnabled: true,
-            placeholderValue: 'Search barangays...',
-            searchPlaceholderValue: 'Type to search...',
-            itemSelectText: '',
-            shouldSort: false,
-        });
+        let choices;
 
-        // Add "Select all" functionality
-        const selectAllBtn = document.createElement('button');
-        selectAllBtn.type = 'button';
-        selectAllBtn.innerText = 'Select All';
-        selectAllBtn.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mt-2', 'me-2');
+        beneficiaryType.addEventListener('change', function () {
+            if (this.value === 'senior' || this.value === 'both') {
+                barangaySection.style.display = '';
+                if (!choices) {
+                    choices = new Choices(barangaySelect, {
+                        removeItemButton: true,
+                        searchEnabled: true,
+                        placeholderValue: 'Search barangays...',
+                        searchPlaceholderValue: 'Type to search...',
+                        itemSelectText: '',
+                        shouldSort: false,
+                    });
 
-        const clearBtn = document.createElement('button');
-        clearBtn.type = 'button';
-        clearBtn.innerText = 'Clear All';
-        clearBtn.classList.add('btn', 'btn-sm', 'btn-outline-danger', 'mt-2');
+                    // Add "Select all" and "Clear all" buttons
+                    const selectAllBtn = document.createElement('button');
+                    selectAllBtn.type = 'button';
+                    selectAllBtn.innerText = 'Select All';
+                    selectAllBtn.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mt-2', 'me-2');
 
-        barangaySelect.parentNode.appendChild(selectAllBtn);
-        barangaySelect.parentNode.appendChild(clearBtn);
+                    const clearBtn = document.createElement('button');
+                    clearBtn.type = 'button';
+                    clearBtn.innerText = 'Clear All';
+                    clearBtn.classList.add('btn', 'btn-sm', 'btn-outline-danger', 'mt-2');
 
-        selectAllBtn.addEventListener('click', () => {
-            barangaySelect.querySelectorAll('option').forEach(option => {
-                option.selected = true;
-            });
-            choices.setChoices(
-                Array.from(barangaySelect.options).map(option => ({
-                    value: option.value,
-                    label: option.text,
-                    selected: true,
-                })),
-                'value',
-                'label',
-                true
-            );
-        });
+                    barangaySelect.parentNode.appendChild(selectAllBtn);
+                    barangaySelect.parentNode.appendChild(clearBtn);
 
-        clearBtn.addEventListener('click', () => {
-            choices.removeActiveItems();
+                    selectAllBtn.addEventListener('click', () => {
+                        barangaySelect.querySelectorAll('option').forEach(option => {
+                            option.selected = true;
+                        });
+                        choices.setChoices(
+                            Array.from(barangaySelect.options).map(option => ({
+                                value: option.value,
+                                label: option.text,
+                                selected: true,
+                            })),
+                            'value',
+                            'label',
+                            true
+                        );
+                    });
+
+                    clearBtn.addEventListener('click', () => {
+                        choices.removeActiveItems();
+                    });
+                }
+            } else {
+                barangaySection.style.display = 'none';
+                if (choices) {
+                    choices.destroy();
+                    choices = null;
+                }
+            }
         });
     });
 </script>
 
+<!-- Error Modal -->
+<div class="modal fade" id="scheduleErrorModal" tabindex="-1" aria-labelledby="scheduleErrorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="scheduleErrorModalLabel">Schedule Creation Error</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="scheduleErrorModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let errorMessages = `{!! implode('<br>', $errors->all()) !!}`;
+            document.getElementById('scheduleErrorModalBody').innerHTML = errorMessages;
+            let errorModal = new bootstrap.Modal(document.getElementById('scheduleErrorModal'));
+            errorModal.show();
+        });
+    </script>
+@endif
 @endsection

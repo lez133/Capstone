@@ -38,6 +38,11 @@
                         <p>{{ $aidProgram->description }}</p>
                         <small>Program Type: {{ $aidProgram->programType->program_type_name }}</small>
                         <small class="d-block mt-2">Added: {{ $aidProgram->created_at->format('Y-m-d') }}</small>
+                        <p><strong>Requirements:</strong>
+                            @foreach($aidProgram->requirements as $req)
+                                {{ $req->document_requirement }}@if(!$loop->last), @endif
+                            @endforeach
+                        </p>
                     </div>
                 </a>
             </div>
@@ -90,6 +95,23 @@
                             <option value="default3.jpg">Default Background 3</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Requirements</label>
+                        <div id="requirement-checkboxes" class="mb-2">
+                            @foreach($requirements as $req)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="requirements[]" value="{{ $req->id }}" id="req{{ $req->id }}">
+                                    <label class="form-check-label" for="req{{ $req->id }}">
+                                        {{ $req->document_requirement }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="input-group mt-2">
+                            <input type="text" id="newRequirement" class="form-control" placeholder="Add new requirement">
+                            <button type="button" id="addRequirementBtn" class="btn btn-outline-primary">Add</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -99,5 +121,83 @@
         </div>
     </div>
 </div>
+
+<!-- Requirement Error Modal -->
+<div class="modal fade" id="requirementErrorModal" tabindex="-1" aria-labelledby="requirementErrorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="requirementErrorModalLabel">Error Adding Requirement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="requirementErrorModalBody">
+        <!-- Error message will be injected here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('addRequirementBtn').onclick = function() {
+    const newReqInput = document.getElementById('newRequirement');
+    const newReq = newReqInput.value.trim();
+    if (newReq) {
+        fetch("{{ route('requirements.store') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ document_requirement: newReq })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.id) {
+                if (!document.getElementById('req' + data.id)) {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" name="requirements[]" value="${data.id}" id="req${data.id}" checked>
+                        <label class="form-check-label" for="req${data.id}">${data.document_requirement}</label>
+                    `;
+                    document.getElementById('requirement-checkboxes').appendChild(div);
+                }
+                newReqInput.value = '';
+                showRequirementSuccess('Requirement added successfully!');
+            } else if (data.errors) {
+                showRequirementError(Object.values(data.errors).join('<br>'));
+            } else {
+                showRequirementError(data.message || 'Could not add requirement.');
+            }
+        })
+        .catch(() => showRequirementError('Server error. Please try again.'));
+    }
+};
+
+// Success message function
+function showRequirementSuccess(message) {
+    let alertDiv = document.getElementById('requirement-success-alert');
+    if (!alertDiv) {
+        alertDiv = document.createElement('div');
+        alertDiv.id = 'requirement-success-alert';
+        alertDiv.className = 'alert alert-success mt-2';
+        document.getElementById('requirement-checkboxes').parentNode.insertBefore(alertDiv, document.getElementById('requirement-checkboxes'));
+    }
+    alertDiv.textContent = message;
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 2000);
+}
+
+// Error modal function
+function showRequirementError(message) {
+    document.getElementById('requirementErrorModalBody').innerHTML = message;
+    var errorModal = new bootstrap.Modal(document.getElementById('requirementErrorModal'));
+    errorModal.show();
+}
+</script>
 @endsection
 

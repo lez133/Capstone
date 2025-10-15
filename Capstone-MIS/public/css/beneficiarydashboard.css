@@ -1,0 +1,46 @@
+.dashboard-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.row.g-3 {
+    --bs-gutter-y: 0.5rem;  /* tighter vertical spacing */
+    --bs-gutter-x: 0.75rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-body {
+    flex: 1 1 auto;
+}
+
+/* Make buttons modern */
+.btn {
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* Table styling */
+.table thead th {
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f9fafb;
+}

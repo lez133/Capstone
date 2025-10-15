@@ -112,6 +112,28 @@
                             <option value="default3.jpg" {{ $aidProgram->default_background == 'default3.jpg' ? 'selected' : '' }}>Default Background 3</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Requirements</label>
+                        <div id="requirement-checkboxes" class="mb-2">
+                            @foreach($requirements as $req)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="requirements[]" value="{{ $req->id }}"
+                                        id="req{{ $req->id }}"
+                                        {{ $aidProgram->requirements->contains($req->id) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="req{{ $req->id }}">
+                                        {{ $req->document_requirement }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <input type="text" id="newRequirement" class="form-control" placeholder="Add new requirement" style="max-width: 400px;">
+                            <button type="button" id="addRequirementBtn" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="requirement-success-alert" class="alert alert-success mt-2 d-none"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -121,4 +143,73 @@
         </div>
     </div>
 </div>
+
+<!-- Requirement Error Modal -->
+<div class="modal fade" id="requirementErrorModal" tabindex="-1" aria-labelledby="requirementErrorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="requirementErrorModalLabel">Error Adding Requirement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="requirementErrorModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('addRequirementBtn').onclick = function() {
+    const newReqInput = document.getElementById('newRequirement');
+    const newReq = newReqInput.value.trim();
+    if (newReq) {
+        fetch("{{ route('requirements.store') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ document_requirement: newReq })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.id) {
+                if (!document.getElementById('req' + data.id)) {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+                    div.innerHTML = `
+                        <input class="form-check-input" type="checkbox" name="requirements[]" value="${data.id}" id="req${data.id}" checked>
+                        <label class="form-check-label" for="req${data.id}">${data.document_requirement}</label>
+                    `;
+                    document.getElementById('requirement-checkboxes').appendChild(div);
+                }
+                newReqInput.value = '';
+                showRequirementSuccess('Requirement added successfully!');
+            } else if (data.errors) {
+                showRequirementError(Object.values(data.errors).join('<br>'));
+            } else {
+                showRequirementError(data.message || 'Requirement already exists or could not be added.');
+            }
+        })
+        .catch(() => showRequirementError('Unable to add requirement. Please check your connection or try again.'));
+    }
+};
+
+function showRequirementSuccess(message) {
+    let alertDiv = document.getElementById('requirement-success-alert');
+    alertDiv.textContent = message;
+    alertDiv.classList.remove('d-none');
+    setTimeout(() => {
+        alertDiv.classList.add('d-none');
+    }, 2000);
+}
+
+function showRequirementError(message) {
+    document.getElementById('requirementErrorModalBody').innerHTML = message;
+    var errorModal = new bootstrap.Modal(document.getElementById('requirementErrorModal'));
+    errorModal.show();
+}
+</script>
 @endsection

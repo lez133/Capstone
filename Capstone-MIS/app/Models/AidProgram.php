@@ -9,9 +9,17 @@ class AidProgram extends Model
     use HasFactory;
 
     protected $fillable = ['aid_program_name', 'description', 'program_type_id', 'background_image', 'default_background'];
+    protected $casts = [
+        'qualified_barangays' => 'array',
+    ];
 
     public function programType()
     {
         return $this->belongsTo(ProgramType::class, 'program_type_id');
+    }
+
+    public function requirements()
+    {
+        return $this->belongsToMany(Requirement::class, 'aid_program_requirement');
     }
 }

@@ -33,16 +33,18 @@
             </a>
         </div>
 
-        <!-- Registered Senior Citizens Card -->
+        <!-- Manage Registered Senior Citizens Card -->
         <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card shadow-sm h-100 hover-card">
-                <img src="{{ asset('img/senior-card.jpg') }}" class="card-img-top" alt="Registered Senior Citizens" style="height: 200px; object-fit: cover;">
-                <div class="card-body text-center">
-                    <i class="fas fa-users fa-3x text-info mb-3"></i>
-                    <h5 class="card-title text-dark">Registered Senior Citizens</h5>
-                    <p class="card-text text-muted">Total: <strong>Blank</strong></p>
+            <a href="{{ route('senior-citizens.select-barangay') }}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 hover-card">
+                    <img src="{{ asset('img/senior-card.jpg') }}" class="card-img-top" alt="Registered Senior Citizens" style="height: 200px; object-fit: cover;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x text-info mb-3"></i>
+                        <h5 class="card-title text-dark">Manage Registered Senior Citizens</h5>
+                        <p class="card-text text-muted">Select a barangay to manage senior citizens.</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Registered PWDs Card -->

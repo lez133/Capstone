@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
+use App\Http\Middleware\EnsureBeneficiaryOtpVerified;
 
 
 class RouteServiceProvider extends ServiceProvider
@@ -16,6 +17,9 @@ class RouteServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+
+        Route::aliasMiddleware('beneficiary.otp', EnsureBeneficiaryOtpVerified::class);
+
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(3)->by($request->ip())->response(function () {
                 return response()->view('errors.too-many-requests', [

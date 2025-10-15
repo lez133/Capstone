@@ -9,6 +9,7 @@ use App\Models\SeniorCitizenBeneficiary;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\QueryException;
+use Exception;
 use \DateTime;
 
 class BeneficiariesController extends Controller
@@ -71,6 +72,11 @@ class BeneficiariesController extends Controller
 
         try {
             $validated['barangay_id'] = Crypt::decrypt($validated['barangay_id']); // Decrypt the barangay ID
+
+            $validated['osca_number'] = Crypt::encrypt($validated['osca_number']);
+            $validated['national_id'] = $validated['national_id'] ? Crypt::encrypt($validated['national_id']) : null;
+            $validated['pkn'] = $validated['pkn'] ? Crypt::encrypt($validated['pkn']) : null;
+            $validated['rrn'] = $validated['rrn'] ? Crypt::encrypt($validated['rrn']) : null;
 
             SeniorCitizenBeneficiary::create($validated);
 
@@ -141,11 +147,40 @@ class BeneficiariesController extends Controller
      */
     public function searchBarangays(Request $request)
     {
-        $search = $request->input('search');
+        // If caller provided a 'barangay' query param, validate it strictly
+        if ($request->has('barangay')) {
+            $raw = $request->query('barangay');
 
-        $barangays = Barangay::where('barangay_name', 'LIKE', "%{$search}%")
-            ->orderBy('barangay_name')
-            ->get();
+            // Immediately reject plain numeric / raw ids
+            if (ctype_digit((string) $raw)) {
+                return response()->json(['message' => 'Invalid parameter'], 400);
+            }
+
+            // Try decrypting (support both encryptString and encrypt)
+            $decryptedId = null;
+            try {
+                $decryptedId = Crypt::decryptString($raw);
+            } catch (\Throwable $e1) {
+                try {
+                    $decryptedId = Crypt::decrypt($raw);
+                } catch (\Throwable $e2) {
+                    return response()->json(['message' => 'Invalid parameter'], 400);
+                }
+            }
+
+            if (!is_numeric($decryptedId)) {
+                return response()->json(['message' => 'Invalid parameter'], 400);
+            }
+
+            $barangay = Barangay::find((int) $decryptedId);
+            return response()->json($barangay ? [$barangay] : []);
+        }
+
+        // Otherwise perform normal live-search by name
+        $search = $request->input('search');
+        $barangays = Barangay::when($search, function ($q, $s) {
+                $q->where('barangay_name', 'LIKE', "%{$s}%");
+            })->orderBy('barangay_name')->get();
 
         return response()->json($barangays);
     }
@@ -172,7 +207,7 @@ class BeneficiariesController extends Controller
                 ->orderBy('last_name', 'asc') // Order by last name in ascending order
                 ->paginate(20);
 
-            return view('content.admin-interface.beneficiaries.senior-citizen.view-senior-citizen.view-senior-citezen', compact('barangay', 'beneficiaries', 'search'));
+            return view('content.admin-interface.beneficiaries.senior-citizen.view-senior-citizen.view-senior-citizen', compact('barangay', 'beneficiaries', 'search'));
         } catch (DecryptException $e) {
             abort(404, 'Invalid Barangay ID');
         }
@@ -223,10 +258,10 @@ class BeneficiariesController extends Controller
                 }
 
                 if (is_null($age)) {
-                    throw new \Exception("Age cannot be null for row {$totalRows}");
+                    throw new Exception("Age cannot be null for row {$totalRows}");
                 }
                 if (is_null($birthday)) {
-                    throw new \Exception("Birthday cannot be null for row {$totalRows}");
+                    throw new Exception("Birthday cannot be null for row {$totalRows}");
                 }
 
                 $dateIssued = $this->normalizeDate($row[9]);
@@ -240,12 +275,12 @@ class BeneficiariesController extends Controller
                     'age' => $age,
                     'gender' => $row[6] ?? null,
                     'civil_status' => $row[7] ?? null,
-                    'osca_number' => $row[8] ?? null,
+                    'osca_number' => $row[8] ? Crypt::encrypt($row[8]) : null,
                     'date_issued' => $dateIssued,
                     'remarks' => $row[10] ?? null,
-                    'national_id' => $row[11] ?? null,
-                    'pkn' => $row[12] ?? null,
-                    'rrn' => $row[13] ?? null,
+                    'national_id' => $row[11] ? Crypt::encrypt($row[11]) : null,
+                    'pkn' => $row[12] ? Crypt::encrypt($row[12]) : null,
+                    'rrn' => $row[13] ? Crypt::encrypt($row[13]) : null,
                 ]);
 
                 $insertedRows++;
@@ -299,4 +334,5 @@ class BeneficiariesController extends Controller
             return null;
         }
     }
+
 }

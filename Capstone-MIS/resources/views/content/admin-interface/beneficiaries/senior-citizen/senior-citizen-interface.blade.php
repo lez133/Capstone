@@ -7,7 +7,11 @@
 
 <div class="container py-4">
     <h1 class="mb-4">Senior Citizen Beneficiaries</h1>
-
+    <div class="mt-4">
+        <a href="{{ route('beneficiaries.index') }}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back to beneficiary interface
+        </a>
+    </div>
     <!-- Search Bar -->
     <div class="search-bar">
         <input type="text" id="searchBarangay" class="form-control" placeholder="Search Barangays...">

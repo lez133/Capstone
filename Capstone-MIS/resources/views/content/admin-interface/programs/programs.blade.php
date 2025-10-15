@@ -62,6 +62,18 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add Requirement Card -->
+        <div class="col-md-4">
+            <div class="card hover-card shadow-sm card-appear card-delay-5">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-alt fa-3x text-secondary mb-3"></i>
+                    <h5 class="card-title">Create Requirement</h5>
+                    <p class="card-text">Add new requirements for aid programs and manage existing ones.</p>
+                    <a href="{{ route('requirements.index') }}" class="btn btn-secondary">Create Requirement</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

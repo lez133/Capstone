@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('beneficiary_type', ['senior', 'pwd', 'both']); // Beneficiary type
             $table->dateTime('start_date'); // Start of the event
             $table->dateTime('end_date'); // End of the event
+            $table->boolean('published')->default(false); // Published status
             $table->timestamps();
         });
     }

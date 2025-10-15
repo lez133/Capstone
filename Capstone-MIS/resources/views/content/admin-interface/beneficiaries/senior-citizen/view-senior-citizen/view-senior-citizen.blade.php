@@ -6,7 +6,11 @@
 <div class="container py-4">
     <h1 class="mb-4">Senior Citizen Beneficiaries</h1>
     <h3 class="mb-4">Barangay: {{ $barangay->barangay_name }}</h3>
-
+    <div class="mt-4">
+        <a href="{{ route('senior-citizen.interface') }}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back to Barangays
+        </a>
+    </div>
     <!-- Search Bar -->
     <form method="GET" action="{{ route('senior-citizen-beneficiaries.view', ['encryptedBarangayId' => Crypt::encrypt($barangay->id)]) }}" class="mb-4">
         <div class="input-group">
@@ -57,7 +61,7 @@
                                 <td>{{ $beneficiary->age }}</td>
                                 <td>{{ $beneficiary->gender }}</td>
                                 <td>{{ $beneficiary->civil_status }}</td>
-                                <td>{{ $beneficiary->osca_number }}</td>
+                                <td>{{ Crypt::decrypt($beneficiary->osca_number) }}</td>
                                 <td>{{ $beneficiary->date_issued }}</td>
                                 <td>{{ $beneficiary->remarks }}</td>
                             </tr>
@@ -114,10 +118,5 @@
         <p class="text-muted">No beneficiaries found for this barangay.</p>
     @endif
 
-    <div class="mt-4">
-        <a href="{{ route('senior-citizen.interface') }}" class="btn btn-secondary">
-            <i class="fa fa-arrow-left"></i> Back to Barangays
-        </a>
-    </div>
 </div>
 @endsection

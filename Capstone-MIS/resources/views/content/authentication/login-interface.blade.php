@@ -17,6 +17,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Show error if credentials are invalid -->
+                @if ($errors->has('username'))
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        {{ $errors->first('username') }}
+                    </div>
+                @endif
+
                 <!-- Login Form -->
                 <form action="{{ route('login') }}" method="POST">
                     @csrf
@@ -55,6 +63,18 @@
             icon.classList.remove('fa-eye-slash');
             icon.classList.add('fa-eye');
         }
+
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var hasLoginError = "{{ $errors->has('username') ? 'true' : 'false' }}";
+        if (hasLoginError === "true") {
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        }
+    });
+</script>
+
 @endsection

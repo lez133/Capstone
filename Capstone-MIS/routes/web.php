@@ -15,12 +15,17 @@ use App\Http\Controllers\Admin\BarangayController;
 use App\Http\Controllers\Admin\ProgramTypeController;
 use App\Http\Controllers\Admin\AidProgramController;
 use App\Http\Controllers\Profiles\ViewProfileController;
+use App\Http\Controllers\Beneficiary\BeneficiaryDashboardController;
+use App\Http\Controllers\Beneficiary\ProfileController;
+use App\Http\Controllers\Admin\RegisteredSeniorCitizenController;
+use App\Http\Controllers\Admin\RequirementController;
+use App\Http\Controllers\Beneficiary\BeneficiaryOtpController;
+use App\Http\Controllers\Beneficiary\AidApplicationController;
 
-
-// Home route
+// -------------------- Home Route --------------------
 Route::get('/', [LoginController::class, 'index'])->name('home');
 
-// Authentication routes
+// -------------------- Authentication Routes --------------------
 Route::prefix('login')->group(function () {
     Route::get('/', [LoginController::class, 'index'])->name('login.index');
     Route::post('/', [LoginController::class, 'login'])->middleware('throttle:login')->name('login');
@@ -29,13 +34,13 @@ Route::prefix('login')->group(function () {
 });
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Dashboard routes
+// -------------------- Dashboard Routes --------------------
 Route::middleware('auth')->group(function () {
     Route::get('/mswd', [MswdController::class, 'index'])->name('mswd.dashboard');
     Route::get('/brgyrep', [BrgyRepController::class, 'index'])->name('brgyrep.dashboard');
 });
 
-// Notification routes
+// -------------------- Notification Routes --------------------
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/sms', [NotificationController::class, 'sendSms'])->name('notifications.sms');
@@ -43,7 +48,7 @@ Route::prefix('notifications')->group(function () {
     Route::post('/notice', [NotificationController::class, 'sendNotice'])->name('notifications.notice');
 });
 
-// Member management routes
+// -------------------- Member Management Routes --------------------
 Route::prefix('members')->group(function () {
     Route::get('/', [MemberController::class, 'index'])->name('members.index');
     Route::get('/create', [MemberController::class, 'create'])->name('members.create');
@@ -53,10 +58,11 @@ Route::prefix('members')->group(function () {
     Route::put('/{id}', [MemberController::class, 'update'])->name('members.update');
     Route::get('/mswd', [MemberController::class, 'mswdMembers'])->name('members.mswd');
     Route::get('/brgy', [MemberController::class, 'brgyReps'])->name('members.brgy');
-    Route::post('/validate-field', [MemberController::class, 'validateField'])->name('members.validateField');
 });
+Route::post('/admin/validate-member-field', [MemberController::class, 'validateField'])
+    ->name('validate.member.field');
 
-// Beneficiaries management routes
+// -------------------- Beneficiaries Management Routes --------------------
 Route::prefix('beneficiaries')->group(function () {
     Route::get('/', [BeneficiariesController::class, 'index'])->name('beneficiaries.index');
     Route::get('/seniors', [BeneficiariesController::class, 'seniors'])->name('beneficiaries.seniors');
@@ -70,10 +76,14 @@ Route::prefix('beneficiaries')->group(function () {
     Route::get('/senior-citizen-beneficiaries/create', [BeneficiariesController::class, 'create'])->name('senior-citizen-beneficiaries.create');
 });
 
-// Schedule management routes
+// -------------------- Schedule Management Routes --------------------
 Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
-
-// Program management routes
+Route::resource('schedules', ScheduleController::class);
+Route::post('schedules/{schedule}/publish', [ScheduleController::class, 'publish'])->name('schedules.publish');
+Route::post('schedules/{schedule}/publish-notify', [ScheduleController::class, 'publishNotify'])->name('schedules.publishNotify');
+Route::post('schedules/{schedule}/unpublish', [ScheduleController::class, 'unpublish'])->name('schedules.unpublish');
+Route::post('schedules/{schedule}/unpublish-notify', [ScheduleController::class, 'unpublishNotify'])->name('schedules.unpublishNotify');
+// -------------------- Program Management Routes --------------------
 Route::prefix('programs')->group(function () {
     Route::get('/', [ProgramController::class, 'index'])->name('programs.index');
 
@@ -98,21 +108,91 @@ Route::prefix('programs')->group(function () {
         Route::get('/{id}', [AidProgramController::class, 'show'])->name('aid-programs.show');
         Route::put('/{id}', [AidProgramController::class, 'update'])->name('aid-programs.update');
         Route::delete('/{id}', [AidProgramController::class, 'destroy'])->name('aid-programs.destroy');
+        Route::post('/requirements', [AidProgramController::class, 'storeRequirement'])
+        ->name('aid.requirements.store');
     });
+
+    Route::resource('requirements', RequirementController::class)
+        ->except(['show', 'edit', 'create'])
+        ->names([
+            'index'   => 'requirements.index',
+            'store'   => 'requirements.store',
+            'destroy' => 'requirements.destroy',
+            'update'  => 'requirements.update',
+        ]);
 });
 
-// View Profile route
+// -------------------- View Profile Route --------------------
 Route::get('/view-profile/{id}', [ViewProfileController::class, 'show'])->name('view-profile.show');
 
-// Senior Citizen Beneficiaries route
+// -------------------- Senior Citizen Beneficiaries Routes --------------------
 Route::get('/senior-citizen-beneficiaries/{encryptedBarangayId}', [BeneficiariesController::class, 'viewSeniorBeneficiaries'])
     ->name('senior-citizen-beneficiaries.view');
 Route::get('/senior-citizen-beneficiaries', [BeneficiariesController::class, 'index'])
     ->name('senior-citizen-beneficiaries.index');
 
-// Schedule resource routes
-Route::resource('schedules', ScheduleController::class);
-
-// Citizen Registration routes
+// -------------------- Citizen Registration Routes --------------------
 Route::get('/register-as-citizen', [CitizenRegistrationController::class, 'create'])->name('register-as-citizen');
 Route::post('/register-as-citizen', [CitizenRegistrationController::class, 'store'])->name('register-as-citizen.store');
+Route::post('/validate-citizen-field', [CitizenRegistrationController::class, 'validateField'])->name('validate.field');
+//otp
+Route::middleware(['auth:beneficiary'])->group(function () {
+    Route::get('/beneficiary/otp', [BeneficiaryOtpController::class, 'show'])
+        ->name('beneficiary.otp');
+    Route::post('/beneficiary/otp', [BeneficiaryOtpController::class, 'verify'])
+        ->name('beneficiary.otp.verify');
+    Route::post('/beneficiary/otp/resend', [BeneficiaryOtpController::class, 'resend'])->name('beneficiary.otp.resend');
+});
+// -------------------- Beneficiary Dashboard Routes --------------------
+Route::middleware(['auth:beneficiary', 'beneficiary.otp'])->group(function () {
+    Route::get('/beneficiaries/dashboard', [BeneficiaryDashboardController::class, 'index'])
+        ->name('beneficiaries.dashboard');
+    Route::get('/beneficiaries/profile', [ProfileController::class, 'index'])
+        ->name('beneficiaries.profile');
+    Route::put('/beneficiary/profile', [ProfileController::class, 'update'])
+        ->name('beneficiary.profile.update');
+    Route::get('/beneficiaries/applications', [AidApplicationController::class, 'index'])
+        ->name('beneficiaries.applications');
+    Route::get('/beneficiaries/apply/{id}', [AidApplicationController::class, 'apply'])
+        ->name('beneficiaries.apply');
+    Route::get('/beneficiaries/documents', [\App\Http\Controllers\Beneficiary\DocumentController::class, 'index'])
+        ->name('beneficiaries.documents');
+    Route::post('/beneficiaries/documents/submit', [\App\Http\Controllers\Beneficiary\DocumentController::class, 'submit'])
+        ->name('beneficiaries.documents.submit');
+    Route::get('/beneficiaries/documents/download/{id}', [\App\Http\Controllers\Beneficiary\DocumentController::class, 'download'])
+        ->name('beneficiaries.documents.download');
+});
+
+// -------------------- Senior Citizens Management Routes --------------------
+Route::prefix('senior-citizens')->group(function () {
+    Route::get('/select-barangay', [RegisteredSeniorCitizenController::class, 'selectBarangay'])
+        ->name('senior-citizens.select-barangay');
+    Route::get('/manage/{encryptedBarangayId}', [RegisteredSeniorCitizenController::class, 'manageSeniorCitizens'])
+        ->name('senior-citizens.manage');
+    Route::get('/verified/{encryptedBarangayId}', [RegisteredSeniorCitizenController::class, 'verifiedBeneficiaries'])
+        ->name('senior-citizens.verified');
+    Route::get('/not-verified/{encryptedBarangayId}', [RegisteredSeniorCitizenController::class, 'notVerifiedBeneficiaries'])
+        ->name('senior-citizens.not-verified');
+    Route::post('/verify/{id}', [RegisteredSeniorCitizenController::class, 'verifyBeneficiary'])
+        ->name('senior-citizens.verify');
+    Route::post('/disable/{id}', [RegisteredSeniorCitizenController::class, 'disableBeneficiary'])
+        ->name('senior-citizens.disable');
+    Route::post('/edit/{id}', [RegisteredSeniorCitizenController::class, 'editBeneficiary'])
+        ->name('senior-citizens.edit');
+    Route::post('/delete/{id}', [RegisteredSeniorCitizenController::class, 'deleteBeneficiary'])
+        ->name('senior-citizens.delete');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+

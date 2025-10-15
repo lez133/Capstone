@@ -1,4 +1,4 @@
-<section class="hero-section d-flex align-items-center text-center">
+<section class="hero-section d-flex align-items-center text-center" data-aos="fade-down">
   <div class="container">
     <h1 class="fw-bold display-5">
       Municipal Information <br>

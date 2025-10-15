@@ -1,0 +1,86 @@
+/* Header underline */
+.applications-title-underline {
+    border-bottom: 4px solid #8b5cf6;
+    padding-bottom: 2px;
+}
+
+/* Search/filter row */
+.aid-search-row .form-control,
+.aid-search-row .form-select {
+    border-radius: 0.75rem;
+    font-size: 1rem;
+}
+
+/* Tab buttons */
+.aid-tab-btn {
+    border-radius: 1.5rem !important;
+    font-weight: bold;
+    padding: 0.5rem 2rem;
+}
+
+.aid-tab-btn.active {
+    background: #f3f4f6;
+    color: #8b5cf6;
+    border: 2px solid #8b5cf6;
+}
+
+/* Card styles */
+.aid-card {
+    border-top-width: 4px !important;
+    border-top-style: solid !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 2px 16px rgba(139, 92, 246, 0.07);
+}
+
+.aid-card .card-body {
+    padding: 2rem 1.5rem;
+}
+
+.aid-card .badge {
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+}
+
+.aid-card .progress {
+    height: 8px;
+    border-radius: 4px;
+    background: #e5e7eb;
+}
+
+.aid-card .progress-bar {
+    border-radius: 4px;
+}
+
+.aid-card .amount-box {
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+    color: #fff;
+    font-size: 1.5rem;
+    border-radius: 0.75rem;
+    padding: 0.5rem 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.aid-card .amount-box-success {
+    background: linear-gradient(90deg, #22c55e 0%, #8b5cf6 100%);
+}
+
+.aid-card .distribution-date-box {
+    background: #f3f4f6;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.aid-card-primary { border-top-color: #3b82f6 !important; }
+.aid-card-success { border-top-color: #22c55e !important; }
+
+@media (max-width: 767px) {
+    .aid-card .card-body {
+        padding: 1rem;
+    }
+    .aid-search-row .form-control,
+    .aid-search-row .form-select {
+        font-size: 0.95rem;
+    }
+}

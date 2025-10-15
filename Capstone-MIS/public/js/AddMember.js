@@ -1,186 +1,167 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const showPasswordCheckbox = document.getElementById('showPassword');
-    const passwordField = document.getElementById('password');
-    const confirmPasswordField = document.getElementById('password_confirmation');
+document.addEventListener("DOMContentLoaded", function () {
+    const step1Tab = document.getElementById("step1-tab");
+    const step2Tab = document.getElementById("step2-tab");
+    const step3Tab = document.getElementById("step3-tab");
 
-    showPasswordCheckbox.addEventListener('change', () => {
-        const type = showPasswordCheckbox.checked ? 'text' : 'password';
+    const showPasswordCheckbox = document.getElementById("showPassword");
+    const passwordField = document.getElementById("password");
+    const confirmPasswordField = document.getElementById("password_confirmation");
+
+    function showModal(message) {
+        document.getElementById("modalMessage").innerText = message;
+        const modal = new bootstrap.Modal(document.getElementById("messageModal"));
+        modal.show();
+    }
+
+    // Step 1 -> Step 2
+    document.getElementById("next-step1").addEventListener("click", () => {
+        const errors = validateStep1();
+        if (errors.length) {
+            showModal(errors.join("\n")); // Show errors in the modal
+            return;
+        }
+        step2Tab.disabled = false;
+        step2Tab.click();
+    });
+
+    // Step 2 -> Step 3
+    document.getElementById("next-step2").addEventListener("click", async () => {
+        const errors = validateStep2();
+        if (errors.length) return showModal(errors.join("\n"));
+
+        const email = document.getElementById("email").value.trim();
+        const valid = await checkUnique("email", email);
+        if (!valid) return showModal("Email is already taken.");
+
+        step3Tab.disabled = false;
+        step3Tab.click();
+    });
+
+    // Previous buttons
+    document.getElementById("prev-step2").addEventListener("click", () => step1Tab.click());
+    document.getElementById("prev-step3").addEventListener("click", () => step2Tab.click());
+
+    // Show/Hide password
+    showPasswordCheckbox.addEventListener("change", () => {
+        const type = showPasswordCheckbox.checked ? "text" : "password";
         passwordField.type = type;
         confirmPasswordField.type = type;
     });
-});
 
-document.getElementById('next-step1').addEventListener('click', () => {
-    const errors = validateStep1();
-    if (errors.length === 0) {
-        document.getElementById('step2-tab').disabled = false;
-        document.getElementById('step2-tab').click();
-    } else {
-        showModal(errors.join('<br>')); // Show all errors in the modal
-    }
-});
+    // Final submit check
+    document.getElementById("addMemberForm").addEventListener("submit", async (e) => {
+        e.preventDefault(); // Prevent the form from submitting immediately
 
-document.getElementById('next-step2').addEventListener('click', () => {
-    const errors = validateStep2();
-    if (errors.length === 0) {
-        document.getElementById('step3-tab').disabled = false;
-        document.getElementById('step3-tab').click();
-    } else {
-        showModal(errors.join('<br>')); // Show all errors in the modal
-    }
-});
+        const username = document.getElementById("username").value.trim();
+        const password = passwordField.value;
+        const confirmPassword = confirmPasswordField.value;
 
-document.getElementById('prev-step2').addEventListener('click', () => {
-    document.getElementById('step1-tab').click();
-});
+        // Validate password strength
+        const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (!passRegex.test(password)) {
+            return showModal("Password must be at least 8 characters long, include uppercase, lowercase, and a number.");
+        }
 
-document.getElementById('prev-step3').addEventListener('click', () => {
-    document.getElementById('step2-tab').click();
-});
+        // Validate password confirmation
+        if (password !== confirmPassword) {
+            return showModal("Passwords do not match.");
+        }
 
-function validateStep1() {
-    const errors = [];
-    const fname = document.getElementById('fname').value.trim();
-    const lname = document.getElementById('lname').value.trim();
-    const birthDay = parseInt(document.getElementById('birth_day').value);
-    const birthMonth = parseInt(document.getElementById('birth_month').value);
-    const birthYear = parseInt(document.getElementById('birth_year').value);
-    const gender = document.getElementById('gender').value;
+        // Check if the username is unique
+        const validUser = await checkUnique("username", username);
+        if (!validUser) {
+            return showModal("Username is already taken.");
+        }
 
-    if (!fname) errors.push('First name is required.');
-    if (!lname) errors.push('Last name is required.');
-    if (!birthDay || !birthMonth || !birthYear) {
-        errors.push('Complete birthday information is required.');
-    } else if (!checkDate(birthDay, birthMonth, birthYear)) {
-        errors.push('The selected date is invalid. Please enter a valid date.');
-    }
-    if (!gender) errors.push('Gender is required.');
-
-    return errors;
-}
-
-function validateStep2() {
-    const errors = [];
-    const contact = document.getElementById('contact').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const contactRegex = /^[0-9]{10,15}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!contact) {
-        errors.push('Contact number is required.');
-    } else if (!contactRegex.test(contact)) {
-        errors.push('Invalid contact number. Please enter a valid number (10-15 digits).');
-    }
-
-    if (!email) {
-        errors.push('Email address is required.');
-    } else if (!emailRegex.test(email)) {
-        errors.push('Invalid email address. Please enter a valid email.');
-    }
-
-    return errors;
-}
-
-function checkDate(day, month, year) {
-    const date = new Date(year, month - 1, day);
-    return (
-        date.getFullYear() === year &&
-        date.getMonth() + 1 === month &&
-        date.getDate() === day
-    );
-}
-
-function showModal(message) {
-    const modalMessage = document.getElementById('modalMessage');
-    modalMessage.innerHTML = message; // Use innerHTML to support multiple lines
-
-    const messageModal = new bootstrap.Modal(document.getElementById('messageModal'), {
-        backdrop: 'static',
-        keyboard: true,
+        // If all validations pass, submit the form
+        e.target.submit();
     });
 
-    messageModal.show();
+    // Helpers
+    function validateStep1() {
+        const errors = [];
 
-    const modalElement = document.getElementById('messageModal');
-    modalElement.addEventListener('hidden.bs.modal', () => {
-        modalMessage.innerHTML = ''; // Clear the modal message after closing
-    });
-}
+        // Validate first name
+        if (!document.getElementById("fname").value.trim()) {
+            errors.push("First name is required.");
+        }
 
-document.getElementById('addMemberForm').addEventListener('submit', (e) => {
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('password_confirmation').value;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        // Validate last name
+        if (!document.getElementById("lname").value.trim()) {
+            errors.push("Last name is required.");
+        }
 
-    if (!passwordRegex.test(password)) {
-        e.preventDefault();
-        showModal('Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one digit.');
-        return false;
+        // Validate gender
+        if (!document.getElementById("gender").value) {
+            errors.push("Gender is required.");
+        }
+
+        // Validate birthdate fields
+        const day = parseInt(document.getElementById("birth_day").value.trim());
+        const month = parseInt(document.getElementById("birth_month").value.trim());
+        const year = parseInt(document.getElementById("birth_year").value.trim());
+
+        if (!day || day < 1 || day > 31) {
+            errors.push("Valid birth day is required.");
+        }
+        if (!month || month < 1 || month > 12) {
+            errors.push("Valid birth month is required.");
+        }
+        if (!year || year < 1900 || year > new Date().getFullYear()) {
+            errors.push("Valid birth year is required.");
+        }
+
+        // Validate if the date is valid
+        if (day && month && year && !isValidDate(year, month, day)) {
+            errors.push("The selected birthdate is invalid.");
+        }
+
+        return errors;
     }
 
-    if (password !== confirmPassword) {
-        e.preventDefault();
-        showModal('Passwords do not match. Please confirm your password.');
-        return false;
+    // Helper function to check if a date is valid
+    function isValidDate(year, month, day) {
+        const date = new Date(year, month - 1, day); // Month is 0-indexed in JavaScript
+        return (
+            date.getFullYear() === year &&
+            date.getMonth() === month - 1 &&
+            date.getDate() === day
+        );
     }
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    const fieldsToValidate = ['username', 'email'];
-    const nextStep1Button = document.getElementById('next-step1');
-    const submitButton = document.querySelector('button[type="submit"]');
+    function validateStep2() {
+        const errors = [];
+        if (!document.getElementById("contact").value.trim()) errors.push("Contact number required.");
+        if (!document.getElementById("email").value.trim()) errors.push("Email required.");
+        return errors;
+    }
 
-    let validationStatus = {
-        username: true,
-        email: true,
-    };
-
-    fieldsToValidate.forEach((field) => {
-        const inputField = document.getElementById(field);
-
-        inputField.addEventListener('input', () => {
-            validateField(field, inputField.value);
-        });
-    });
-
-    function validateField(field, value) {
-        const errorField = document.getElementById(`${field}-error`);
-
-        // Clear previous error message
-        errorField.textContent = '';
-
-        // Perform AJAX request to validate the field
-        fetch(`/validate-member-field`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            },
-            body: JSON.stringify({ field, value }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (!data.valid) {
-                    errorField.textContent = data.message;
-                    validationStatus[field] = false;
-                } else {
-                    validationStatus[field] = true;
-                }
-                toggleButtons();
-            })
-            .catch((error) => {
-                console.error('Error:', error);
+    async function checkUnique(field, value) {
+        try {
+            const res = await fetch("/admin/validate-member-field", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+                body: JSON.stringify({ field, value }),
             });
+
+            const text = await res.text(); // Read response as text first (debug-safe)
+
+            try {
+                const data = JSON.parse(text); // Try to parse JSON
+                return data.valid;
+            } catch (jsonErr) {
+                console.error("Invalid JSON response from server:", text);
+                return false;
+            }
+        } catch (err) {
+            console.error("Error in checkUnique:", err);
+            return false;
+        }
     }
 
-    function toggleButtons() {
-
-        const isFormValid = Object.values(validationStatus).every((status) => status === true);
-
-        nextStep1Button.disabled = !isFormValid;
-        submitButton.disabled = !isFormValid;
-    }
-
-    // Initial state of buttons
-    toggleButtons();
 });

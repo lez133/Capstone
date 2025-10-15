@@ -1,4 +1,4 @@
-<section id="features" class="features-section py-5">
+<section id="features" class="features-section py-5" data-aos="fade-up">
   <div class="container text-center">
     <h2 class="fw-bold mb-3">Comprehensive Government Information Management</h2>
     <p class="text-muted mb-5">
@@ -16,7 +16,7 @@
     <div class="row g-4">
       <!-- Feature Cards -->
       @foreach ($features as $feature)
-        <div class="col-md-4">
+        <div class="col-md-4" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 100 }}">
           <div class="feature-card p-4 h-100">
             <div class="feature-icon mb-3">
               <i class="{{ $feature['icon'] }} fa-2x text-primary"></i>

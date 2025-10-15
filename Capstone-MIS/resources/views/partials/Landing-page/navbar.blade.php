@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top" data-aos="fade-down">
   <div class="container">
     <!-- Logo -->
     <a class="navbar-brand d-flex align-items-center" href="#">

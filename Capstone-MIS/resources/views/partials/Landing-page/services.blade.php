@@ -1,4 +1,4 @@
-<section id="services" class="services-section py-5 bg-light">
+<section id="services" class="services-section py-5 bg-light" data-aos="fade-up">
   <div class="container text-center">
     <h2 class="fw-bold mb-3">Our Government Services</h2>
     <p class="text-muted mb-5">
@@ -41,7 +41,7 @@
     <div class="row g-4">
       <!-- Service Cards -->
       @foreach ($services as $service)
-        <div class="col-md-3">
+        <div class="col-md-3" data-aos="zoom-in" data-aos-delay="{{ $loop->index * 100 }}">
           <div class="service-card p-4 h-100">
             <div class="service-icon mb-3">
               <i class="{{ $service['icon'] }} fa-2x text-primary"></i>

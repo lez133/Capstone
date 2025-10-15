@@ -1,11 +1,17 @@
 @extends('layouts.apps')
 
 @section('content')
+
+<style>
+    /* small styles for stepper spacing */
+    .step { transition: opacity 0.2s ease; }
+    .d-none { display: none !important; }
+    .bg-light { background-color: #f8f9fa !important; }
+</style>
+
 <div class="container py-5">
     <div class="card shadow rounded-4">
         <div class="card-body p-5">
-
-            <!-- Page Title -->
             <h2 class="text-center mb-5 fw-bold">Beneficiary Registration</h2>
 
             <!-- Stepper -->
@@ -36,7 +42,7 @@
             </div>
 
             <!-- Form -->
-            <form method="POST" action="{{ route('beneficiaries.store') }}" id="registrationForm">
+            <form method="POST" action="{{ route('register-as-citizen.store') }}" id="registrationForm">
                 @csrf
 
                 <!-- Step 1 -->
@@ -54,6 +60,7 @@
                         <div class="col-md-6">
                             <label for="email" class="form-label">Email Address *</label>
                             <input type="email" name="email" id="email" class="form-control">
+                            <small id="email-error" class="text-danger"></small>
                         </div>
                         <div class="col-md-6">
                             <label for="phone" class="form-label">Phone Number *</label>
@@ -109,7 +116,17 @@
                                 <option value="">Select Civil Status</option>
                                 <option value="Single">Single</option>
                                 <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
                                 <option value="Widowed">Widowed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="barangay_id" class="form-label">Select Barangay *</label>
+                            <select name="barangay_id" id="barangay_id" class="form-select" required>
+                                <option value="" disabled selected>Select your barangay</option>
+                                @foreach ($barangays as $barangay)
+                                    <option value="{{ $barangay->id }}">{{ $barangay->barangay_name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -142,7 +159,6 @@
                 <div id="step4" class="step d-none">
                     <h4 class="mb-4">Step 4 of 4: Account Setup</h4>
 
-                    <!-- Account Summary -->
                     <div class="mb-4">
                         <h5 class="fw-bold">Account Summary</h5>
                         <div class="border rounded-3 p-3 bg-light">
@@ -159,20 +175,36 @@
                         </div>
                     </div>
 
-                    <!-- Password Fields -->
                     <div class="row g-3">
                         <div class="col-md-6">
+                            <label for="username" class="form-label">Username *</label>
+                            <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username">
+                            <small id="username-error" class="text-danger"></small>
+                        </div>
+                        <div class="col-md-6">
                             <label for="password" class="form-label">Password *</label>
-                            <input type="password" name="password" id="password" class="form-control">
+                            <div class="input-group">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            @error('password')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label for="password_confirmation" class="form-label">Confirm Password *</label>
-                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
+                            <div class="input-group">
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Confirm your password">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#password_confirmation">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- reCAPTCHA -->
-                    <div class="mb-3">
+                    <div class="mb-3 mt-3">
                         {!! NoCaptcha::renderJs() !!}
                         {!! NoCaptcha::display() !!}
                         @if ($errors->has('g-recaptcha-response'))
@@ -208,9 +240,5 @@
   </div>
 </div>
 
-
 <script src="{{ asset('js/citizen-registration.js') }}"></script>
 @endsection
-
-
-

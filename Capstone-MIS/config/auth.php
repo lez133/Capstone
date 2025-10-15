@@ -39,6 +39,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'beneficiary' => [ // Guard for beneficiaries
+            'driver' => 'session',
+            'provider' => 'beneficiaries',
+        ],
     ],
 
     /*
@@ -63,11 +67,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\MSWDMember::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'beneficiaries' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Beneficiary::class,
+        ],
     ],
 
     /*

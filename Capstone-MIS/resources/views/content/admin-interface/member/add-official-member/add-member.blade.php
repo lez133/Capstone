@@ -3,23 +3,16 @@
 @section('title', 'Add Member')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
             <h5 class="mb-0">Add Member</h5>
         </div>
         <div class="card-body">
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
             <form action="{{ route('members.store') }}" method="POST" enctype="multipart/form-data" id="addMemberForm">
                 @csrf
+
                 <!-- Step Navigation -->
                 <ul class="nav nav-pills mb-4" id="step-nav">
                     <li class="nav-item">
@@ -35,48 +28,48 @@
 
                 <!-- Step Content -->
                 <div class="tab-content">
-                    <!-- Step 1: Personal Information -->
+                    <!-- Step 1 -->
                     <div class="tab-pane fade show active" id="step1">
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <label for="fname" class="form-label">First Name <span class="text-danger">*</span></label>
-                                <input type="text" name="fname" id="fname" class="form-control" placeholder="Enter first name" required>
+                                <label class="form-label">First Name *</label>
+                                <input type="text" name="fname" id="fname" class="form-control" required>
                             </div>
                             <div class="col-md-4">
-                                <label for="mname" class="form-label">Middle Name (Optional)</label>
-                                <input type="text" name="mname" id="mname" class="form-control" placeholder="Enter middle name">
+                                <label class="form-label">Middle Name</label>
+                                <input type="text" name="mname" id="mname" class="form-control">
                             </div>
                             <div class="col-md-4">
-                                <label for="lname" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                <input type="text" name="lname" id="lname" class="form-control" placeholder="Enter last name" required>
+                                <label class="form-label">Last Name *</label>
+                                <input type="text" name="lname" id="lname" class="form-control" required>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <label for="birth_day" class="form-label">Day <span class="text-danger">*</span></label>
-                                <input type="number" name="birth_day" id="birth_day" class="form-control" placeholder="Enter day (1-31)" min="1" max="31" required>
+                                <label class="form-label">Day *</label>
+                                <input type="number" name="birth_day" id="birth_day" class="form-control" min="1" max="31" required>
                             </div>
                             <div class="col-md-4">
-                                <label for="birth_month" class="form-label">Month <span class="text-danger">*</span></label>
-                                <input type="number" name="birth_month" id="birth_month" class="form-control" placeholder="Enter month (1-12)" min="1" max="12" required>
+                                <label class="form-label">Month *</label>
+                                <input type="number" name="birth_month" id="birth_month" class="form-control" min="1" max="12" required>
                             </div>
                             <div class="col-md-4">
-                                <label for="birth_year" class="form-label">Year <span class="text-danger">*</span></label>
-                                <input type="number" name="birth_year" id="birth_year" class="form-control" placeholder="Enter year (e.g., 1990)" min="1900" max="{{ date('Y') }}" required>
+                                <label class="form-label">Year *</label>
+                                <input type="number" name="birth_year" id="birth_year" class="form-control" min="1900" max="{{ date('Y') }}" required>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="gender" class="form-label">Gender <span class="text-danger">*</span></label>
+                                <label class="form-label">Gender *</label>
                                 <select name="gender" id="gender" class="form-select" required>
-                                    <option value="" disabled selected>Select gender</option>
+                                    <option value="" disabled selected>Select</option>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="profile_picture" class="form-label">Profile Picture (Optional)</label>
+                                <label class="form-label">Profile Picture</label>
                                 <input type="file" name="profile_picture" id="profile_picture" class="form-control" accept="image/*">
                             </div>
                         </div>
@@ -85,18 +78,16 @@
                         </div>
                     </div>
 
-                    <!-- Step 2: Contact Information -->
+                    <!-- Step 2 -->
                     <div class="tab-pane fade" id="step2">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                <input type="number" name="contact" id="contact" class="form-control" placeholder="Enter contact number" required>
-                                <small id="contact-error" class="text-danger"></small> <!-- Error message placeholder -->
+                                <label class="form-label">Contact Number *</label>
+                                <input type="number" name="contact" id="contact" class="form-control" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                <input type="email" name="email" id="email" class="form-control" placeholder="Enter email address" required>
-                                <small id="email-error" class="text-danger"></small> <!-- Error message placeholder -->
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email" id="email" class="form-control" required>
                             </div>
                         </div>
                         <div class="d-flex justify-content-between">
@@ -105,13 +96,13 @@
                         </div>
                     </div>
 
-                    <!-- Step 3: Role and Password -->
+                    <!-- Step 3 -->
                     <div class="tab-pane fade" id="step3">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                                <label class="form-label">Role *</label>
                                 <select name="role" id="role" class="form-select" required>
-                                    <option value="" disabled selected>Select role</option>
+                                    <option value="" disabled selected>Select</option>
                                     <option value="MSWD Representative">MSWD Representative</option>
                                     <option value="Barangay Representative">Barangay Representative</option>
                                 </select>
@@ -119,27 +110,23 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                                <input type="text" name="username" id="username" class="form-control" placeholder="Enter username" required>
+                                <label class="form-label">Username *</label>
+                                <input type="text" name="username" id="username" class="form-control" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required>
+                                <label class="form-label">Password *</label>
+                                <input type="password" name="password" id="password" class="form-control" required>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Retype password" required>
+                                <label class="form-label">Confirm Password *</label>
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
                             </div>
                         </div>
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="showPassword">
-                                    <label class="form-check-label" for="showPassword">Show Password</label>
-                                </div>
-                            </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="showPassword">
+                            <label class="form-check-label" for="showPassword">Show Password</label>
                         </div>
                         <div class="d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary" id="prev-step3">Previous</button>
@@ -152,17 +139,15 @@
     </div>
 </div>
 
-<!-- Modal for Message -->
-<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+<!-- Modal for Messages -->
+<div class="modal fade" id="messageModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="messageModalLabel">Message</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="modalMessage">
-                <!-- Message -->
-            </div>
+            <div class="modal-body" id="modalMessage"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>

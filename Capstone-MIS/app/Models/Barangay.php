@@ -11,10 +11,13 @@ class Barangay extends Model
 
     protected $fillable = ['barangay_name'];
 
-    /**
-     * Define the relationship to the SeniorCitizenBeneficiary model.
-     */
+
     public function beneficiaries()
+    {
+        return $this->hasMany(Beneficiary::class, 'barangay_id');
+    }
+
+    public function seniorCitizenBeneficiaries()
     {
         return $this->hasMany(SeniorCitizenBeneficiary::class, 'barangay_id');
     }

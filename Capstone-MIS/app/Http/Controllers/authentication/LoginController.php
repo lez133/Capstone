@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\authentication;
+namespace App\Http\Controllers\Authentication;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\MSWDMember;
 
 class LoginController extends Controller
 {
@@ -22,34 +20,43 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        $member = MSWDMember::where('username', $credentials['username'])->first();
+        // Attempt to log in as MSWD Member
+        if (Auth::guard('web')->attempt($credentials)) {
+        $request->session()->regenerate();
+        $user = Auth::guard('web')->user();
 
-        if (!$member) {
-            return back()->withErrors(['username' => 'Username not found.']);
+        if ($user->role === 'Barangay Representative') {
+            return redirect()->route('brgyrep.dashboard');
+        } else {
+            return redirect()->route('mswd.dashboard');
+        }
+    }
+
+        // Attempt to log in as Beneficiary
+        if (Auth::guard('beneficiary')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->route('beneficiaries.dashboard');
         }
 
-        if ($member && Hash::check($credentials['password'], $member->password)) {
-
-            Auth::login($member);
-
-            if ($member->role === 'MSWD Representative') {
-                return redirect()->route('mswd.dashboard'); // Redirect to MSWD interface
-            } elseif ($member->role === 'Barangay Representative') {
-                return redirect()->route('brgyrep.dashboard'); // Redirect to Barangay Representative interface
-            }
-        }
-
+        // If login fails for both guards
         return back()->withErrors([
-            'username' => 'Invalid login credentials.', // Error message for invalid credentials
+            'username' => 'Invalid login credentials.',
         ]);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        // Check if the user is logged in as a Beneficiary
+        if (Auth::guard('beneficiary')->check()) {
+            Auth::guard('beneficiary')->logout();
+        } else {
+            // Default to logging out as an MSWD Member
+            Auth::guard('web')->logout();
+        }
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login.index');
+        return redirect()->route('login.index'); // Redirect to the login page
     }
 }
