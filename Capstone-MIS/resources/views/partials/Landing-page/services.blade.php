@@ -11,7 +11,7 @@
           'icon' => 'fas fa-file-alt',
           'title' => 'Document Processing',
           'description' => 'Government document processing.',
-          'details' => ['Business permits', 'Barangay clearances'],
+          'details' => ['Certificates & IDs', 'Verifying submitted documents'],
           'button_text' => 'Apply Now',
         ],
         [
@@ -29,11 +29,11 @@
           'button_text' => 'Learn More',
         ],
         [
-          'icon' => 'fas fa-chart-line',
-          'title' => 'Analytics & Reports',
-          'description' => 'Data-driven insights for better governance.',
-          'details' => ['Population statistics', 'Service performance'],
-          'button_text' => 'View Reports',
+          'icon' => 'fas fa-id-card',
+          'title' => 'Beneficiary Management',
+          'description' => 'Digital registration and tracking of PWDs and senior citizens.',
+          'details' => ['Register beneficiaries', 'Track aid distribution', 'Send SMS notifications'],
+          'button_text' => 'Manage Beneficiaries',
         ],
       ];
     @endphp

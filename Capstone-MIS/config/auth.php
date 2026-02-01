@@ -39,9 +39,17 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'beneficiary' => [ // Guard for beneficiaries
+        'beneficiary' => [
             'driver' => 'session',
             'provider' => 'beneficiaries',
+        ],
+        'mswd' => [
+            'driver' => 'session',
+            'provider' => 'users', // MSWDMember model
+        ],
+        'brgyrep' => [
+            'driver' => 'session',
+            'provider' => 'users', // MSWDMember model
         ],
     ],
 

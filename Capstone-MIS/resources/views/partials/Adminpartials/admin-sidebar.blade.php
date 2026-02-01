@@ -1,7 +1,45 @@
 <aside id="mswd-sidebar" class="sidebar">
+    <style>
+        @keyframes mswd-bob {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Pause any icon animation from libraries (e.g. FontAwesome) by default */
+        .sidebar-content .nav-link i,
+        .sidebar-content .nav-link.active i {
+            display: inline-block;
+            transition: transform .25s ease, color .25s ease;
+            will-change: transform;
+            animation-play-state: paused !important;
+        }
+
+        /* Start icon animation only when hovered or focused (keyboard accessible) */
+        .sidebar-content .nav-link:hover i,
+        .sidebar-content .nav-link:focus i {
+            transform: translateY(-4px) rotate(-8deg);
+            color: #0d6efd; /* Bootstrap primary */
+            animation-play-state: running !important;
+        }
+
+        /* If you keep the custom bob animation for active links, keep it defined but paused by default */
+        .sidebar-content .nav-link.active i {
+            animation: mswd-bob 3s ease-in-out infinite;
+            /* remain paused until hovered */
+            animation-play-state: paused !important;
+        }
+
+        /* small focus transform for keyboard users */
+        .sidebar-content .nav-link:focus i {
+            transform: translateY(-2px);
+            animation-play-state: running !important;
+        }
+    </style>
+
     <div class="sidebar-header d-flex justify-content-between align-items-center">
         <div class="sidebar-brand d-flex align-items-center">
-            <img src="{{ asset('img/admin-icon.png') }}" alt="MSWD" height="36">
+            <img src="{{ asset('img/admin-icon.png') }}" alt="MSWD" height="36" class="moving-icon">
             <div class="brand-text ms-2">
                 <div class="fw-bold">MSWD ADMIN</div>
                 <small class="text-muted">Municipal Dashboard</small>
@@ -15,41 +53,32 @@
     <div class="sidebar-content">
         <nav class="nav flex-column">
             <a href="{{ route('mswd.dashboard') }}" class="nav-link">
-                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                <i class="fas fa-tachometer-alt me-2 fa-beat" aria-hidden="true"></i> Dashboard
             </a>
             <a href="{{ route('beneficiaries.index') }}" class="nav-link">
-                <i class="fas fa-users me-2"></i> Beneficiaries
+                <i class="fas fa-users me-2 fa-bounce" aria-hidden="true"></i> Beneficiaries
             </a>
-            <a href="#" class="nav-link">
-                <i class="fas fa-boxes me-2"></i> Distributions
+            <a href="{{ route('distribution.barangays') }}" class="nav-link">
+                <i class="fas fa-boxes me-2 fa-fade" aria-hidden="true"></i> Distributions
             </a>
-            <a href="#" class="nav-link">
-                <i class="fas fa-file-alt me-2"></i> Documents
+            <a href="{{ route('document.barangay.selector') }}" class="nav-link">
+                <i class="fas fa-file-alt me-2 fa-shake" aria-hidden="true"></i> Documents
             </a>
             <a href="{{ route('notifications.index') }}" class="nav-link">
-                <i class="fas fa-bell me-2"></i> Notifications
+                <i class="fas fa-bell me-2 fa-beat-fade" aria-hidden="true"></i> Notifications
             </a>
             <a href="{{ route('members.index') }}" class="nav-link">
-                <i class="fas fa-user-friends me-2"></i> Members
+                <i class="fas fa-user-friends me-2 fa-flip" aria-hidden="true"></i> Members
             </a>
-            <!-- <a href="#" class="nav-link">
-                <i class="fas fa-chart-bar me-2"></i> Reports
-            </a> -->
             <a href="{{ route('schedule.index') }}" class="nav-link">
-                <i class="fas fa-calendar-alt me-2"></i> Schedule
+                <i class="fas fa-calendar-alt me-2 fa-spin" aria-hidden="true"></i> Schedule
             </a>
             <a href="{{ route('programs.index') }}" class="nav-link">
-                <i class="fas fa-calendar-check me-2"></i> Manage Programs/Events
+                <i class="fas fa-calendar-check me-2 fa-beat" aria-hidden="true"></i> Manage Programs/Events
+            </a>
+            <a href="{{ route('reports.index') }}" class="nav-link">
+                <i class="fas fa-file-invoice me-2 fa-bounce" aria-hidden="true"></i> Logs & Reports
             </a>
         </nav>
-
-        <!-- <div class="sidebar-actions mt-3">
-            <button class="btn btn-sm btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modal-register">
-                <i class="fas fa-user-plus me-2"></i> Register Beneficiary
-            </button>
-            <button class="btn btn-sm btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modal-schedule">
-                <i class="fas fa-calendar-alt me-2"></i> Schedule Distribution
-            </button>
-        </div> -->
     </div>
 </aside>

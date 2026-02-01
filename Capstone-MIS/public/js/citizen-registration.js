@@ -28,13 +28,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (progress) progress.style.width = ((stepNumber - 1) / 3) * 100 + "%";
     }
 
+    let warningModalInstance = null;
+
     function showWarning(message) {
         const el = document.getElementById("warningMessage");
         if (el) el.innerHTML = message;
         const modalEl = document.getElementById("warningModal");
         if (modalEl) {
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
+            if (!warningModalInstance) {
+                warningModalInstance = new bootstrap.Modal(modalEl);
+            }
+            warningModalInstance.show();
         } else {
             alert(message);
         }
@@ -102,18 +106,43 @@ document.addEventListener("DOMContentLoaded", function () {
         const lastName = document.getElementById("last_name").value.trim();
         const firstName = document.getElementById("first_name").value.trim();
         const email = document.getElementById("email").value.trim();
-        const phone = document.getElementById("phone").value.trim();
+        let phoneRaw = document.getElementById("phone").value.trim();
 
         let errors = [];
         if (!lastName) errors.push("Last name is required.");
         if (!firstName) errors.push("First name is required.");
-        if (!email) errors.push("Email is required.");
-        if (!phone) errors.push("Phone number is required.");
+        if (!phoneRaw) errors.push("Phone number is required.");
+
+        // Normalize phone to 639XXXXXXXXX if possible
+        let phone = phoneRaw;
+        if (phoneRaw && /^09\d{9}$/.test(phoneRaw)) {
+            phone = "63" + phoneRaw.substring(1);
+        }
+
+        // Validate format early
+        if (phone && !/^(639\d{9})$/.test(phone)) {
+            errors.push("Phone number must be in 639XXXXXXXXX format (or 09XXXXXXXXX).");
+        }
 
         if (errors.length) return showWarning(errors.join("<br>"));
 
-        const emailValid = await checkUnique("email", email);
-        if (!emailValid) return;
+        // Check unique phone (will show warning on failure)
+        const phoneValid = await checkUnique("phone", phone);
+        if (!phoneValid) return;
+
+        // Ensure the input value is normalized for submission
+        document.getElementById("phone").value = phone;
+
+        // Only check unique email if provided
+        if (email) {
+            const emailValid = await checkUnique("email", email);
+            if (!emailValid) return;
+        }
+
+        if (!otpValidated) {
+            showWarning('Please validate your OTP before proceeding.');
+            return;
+        }
 
         nextStep(2);
     };
@@ -247,6 +276,18 @@ document.addEventListener("DOMContentLoaded", function () {
     if (usernameInput) {
         usernameInput.addEventListener("blur", () => checkUnique("username", usernameInput.value));
     }
+    const phoneInput = document.getElementById("phone");
+    if (phoneInput) {
+        phoneInput.addEventListener("blur", async () => {
+            let phone = phoneInput.value.trim();
+            // Auto-convert 09XXXXXXXXX to 639XXXXXXXXX
+            if (/^09\d{9}$/.test(phone)) {
+                phone = "63" + phone.substring(1);
+                phoneInput.value = phone;
+            }
+            await checkUnique("phone", phone);
+        });
+    }
 
     // Start on step 1
     nextStep(1);
@@ -263,6 +304,99 @@ document.addEventListener("DOMContentLoaded", function () {
                 age--;
             }
             document.getElementById("age").value = age;
+        }
+    });
+
+    let otpValidated = false;
+
+    document.getElementById('sendOtpBtn').addEventListener('click', async function () {
+        const phoneInput = document.getElementById('phone');
+        const otpInput = document.getElementById('otp');
+        const otpStatus = document.getElementById('otp-status');
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        otpStatus.textContent = '';
+        otpStatus.classList.remove('text-success', 'text-danger');
+
+        let phone = phoneInput.value.trim();
+        // Normalize to 639XXXXXXXXX if user enters 09XXXXXXXXX
+        if (/^09\d{9}$/.test(phone)) {
+            phone = "63" + phone.substring(1);
+            phoneInput.value = phone;
+        }
+
+        if (!phone || !/^639\d{9}$/.test(phone)) {
+            otpStatus.textContent = 'Please enter a valid phone number.';
+            otpStatus.classList.add('text-danger');
+            otpInput.disabled = true;
+            return;
+        }
+
+        try {
+            const response = await fetch('/send-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf
+                },
+                body: JSON.stringify({ phone })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                otpStatus.textContent = 'OTP sent successfully!';
+                otpStatus.classList.add('text-success');
+                otpInput.disabled = false;
+                otpInput.focus();
+            } else {
+                otpStatus.textContent = data.message || 'Failed to send OTP.';
+                otpStatus.classList.add('text-danger');
+                otpInput.disabled = true;
+            }
+        } catch (error) {
+            otpStatus.textContent = 'An error occurred while sending OTP.';
+            otpStatus.classList.add('text-danger');
+            otpInput.disabled = true;
+        }
+    });
+
+    document.getElementById('otp').addEventListener('input', async function () {
+        const phone = document.getElementById('phone').value.trim();
+        const otp = this.value.trim();
+        const otpStatus = document.getElementById('otp-status');
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+        if (otp.length === 6) {
+            try {
+                const res = await fetch('/validate-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf
+                    },
+                    body: JSON.stringify({ phone, otp })
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(errorText || 'Failed to validate OTP.');
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                    otpValidated = true;
+                    otpStatus.textContent = 'OTP validated!';
+                    otpStatus.classList.add('text-success');
+                } else {
+                    otpValidated = false;
+                    otpStatus.textContent = data.message || 'Invalid OTP.';
+                    otpStatus.classList.add('text-danger');
+                }
+            } catch (err) {
+                otpValidated = false;
+                otpStatus.textContent = err.message || 'An error occurred while validating OTP.';
+                otpStatus.classList.add('text-danger');
+            }
         }
     });
 });

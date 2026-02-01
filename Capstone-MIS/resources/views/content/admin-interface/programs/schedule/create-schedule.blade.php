@@ -72,7 +72,8 @@
         let choices;
 
         beneficiaryType.addEventListener('change', function () {
-            if (this.value === 'senior' || this.value === 'both') {
+            // show barangay selector for senior, pwd or both
+            if (['senior','pwd','both'].includes(this.value)) {
                 barangaySection.style.display = '';
                 if (!choices) {
                     choices = new Choices(barangaySelect, {

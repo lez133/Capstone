@@ -15,10 +15,14 @@ class Schedule extends Model
         'beneficiary_type',
         'start_date',
         'end_date',
+        'published',
     ];
 
     protected $casts = [
-        'barangay_ids' => 'array', // Automatically cast JSON to array
+        'barangay_ids' => 'array',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'published' => 'boolean',
     ];
 
     public function aidProgram()

@@ -28,24 +28,25 @@
             </form>
         </div>
     </div>
-@elseif(!$user->otp_confirmed && $currentRoute !== 'beneficiary.otp')
-    <script>window.location = "{{ route('beneficiary.otp') }}";</script>
 @else
-    <div class="d-flex">
-        {{-- Sidebar --}}
-        @include('partials.Beneficiarypartials.beneficiary-sidebar')
+    {{-- Sidebar --}}
+    @include('partials.Beneficiarypartials.beneficiary-sidebar')
 
-        {{-- Main Content --}}
-        <div id="mainContent" class="flex-grow-1" style="margin-left:260px;">
-            {{-- Header --}}
-            @include('partials.Beneficiarypartials.beneficiary-header')
+    {{-- Overlay for mobile --}}
+    <div id="sidebarOverlay"></div>
 
-            <main class="p-4">
-                @yield('content')
-            </main>
-        </div>
+    {{-- Main Layout --}}
+    <div id="mainLayout" class="d-flex flex-column" style="margin-left:270px;">
+        {{-- Header --}}
+        @include('partials.Beneficiarypartials.beneficiary-header')
+
+        {{-- Scrollable Content --}}
+        <main id="mainContent" class="flex-grow-1 p-4 overflow-auto" style="margin-top:72px;">
+            @yield('content')
+        </main>
     </div>
 @endif
+
 @stack('scripts')
 <script src="{{ asset('js/BeneficiaryUi.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

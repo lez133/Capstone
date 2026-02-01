@@ -3,39 +3,66 @@
 @section('content')
 
 <style>
-    /* small styles for stepper spacing */
     .step { transition: opacity 0.2s ease; }
     .d-none { display: none !important; }
     .bg-light { background-color: #f8f9fa !important; }
+    .top-illustration {
+        width: 100%;
+        height: 260px;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    .top-illustration img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    @media (max-width: 768px) {
+        .top-illustration { height: 200px; }
+    }
+    @media (max-width: 576px) {
+        .top-illustration { height: 170px; }
+    }
 </style>
 
 <div class="container py-5">
     <div class="card shadow rounded-4">
-        <div class="card-body p-5">
+        <div class="card-body p-4 p-md-5">
+
+            <div class="top-illustration">
+                <img src="{{ asset('img/Register-Illus.png') }}" alt="Registration Illustration">
+            </div>
+
             <h2 class="text-center mb-5 fw-bold">Beneficiary Registration</h2>
 
             <!-- Stepper -->
             <div class="d-flex justify-content-between mb-5 position-relative">
                 <div class="position-absolute start-0 w-100 bg-light" style="height:4px; top:60%;"></div>
-                <div id="progressLine" class="position-absolute start-0 bg-success" style="height:4px; width:0%; top:60%; transition: width 0.4s;"></div>
-
+                <div id="progressLine" class="position-absolute start-0 bg-success"
+                     style="height:4px; width:0%; top:60%; transition: width 0.4s;">
+                </div>
                 <div class="text-center flex-fill">
-                    <div id="stepIndicator1" class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto"
+                    <div id="stepIndicator1"
+                         class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto"
                          style="width:40px; height:40px;">1</div>
                     <small class="d-block mt-2">Basic Info</small>
                 </div>
                 <div class="text-center flex-fill">
-                    <div id="stepIndicator2" class="rounded-circle bg-light text-dark border d-flex align-items-center justify-content-center mx-auto"
+                    <div id="stepIndicator2"
+                         class="rounded-circle bg-light text-dark border d-flex align-items-center justify-content-center mx-auto"
                          style="width:40px; height:40px;">2</div>
                     <small class="d-block mt-2">Personal</small>
                 </div>
                 <div class="text-center flex-fill">
-                    <div id="stepIndicator3" class="rounded-circle bg-light text-dark border d-flex align-items-center justify-content-center mx-auto"
+                    <div id="stepIndicator3"
+                         class="rounded-circle bg-light text-dark border d-flex align-items-center justify-content-center mx-auto"
                          style="width:40px; height:40px;">3</div>
                     <small class="d-block mt-2">ID Info</small>
                 </div>
                 <div class="text-center flex-fill">
-                    <div id="stepIndicator4" class="rounded-circle bg-light text-dark border d-flex align-items-center justify-content-center mx-auto"
+                    <div id="stepIndicator4"
+                         class="rounded-circle bg-light text-dark border d-flex align-items-center justify-content-center mx-auto"
                          style="width:40px; height:40px;">4</div>
                     <small class="d-block mt-2">Account</small>
                 </div>
@@ -58,21 +85,45 @@
                             <input type="text" name="first_name" id="first_name" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label for="email" class="form-label">Email Address *</label>
-                            <input type="email" name="email" id="email" class="form-control">
-                            <small id="email-error" class="text-danger"></small>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label">Phone Number *</label>
-                            <input type="text" name="phone" id="phone" class="form-control">
-                        </div>
-                        <div class="col-md-6">
                             <label for="middle_name" class="form-label">Middle Name (Optional)</label>
                             <input type="text" name="middle_name" id="middle_name" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label for="suffix" class="form-label">Suffix (Optional)</label>
                             <input type="text" name="suffix" id="suffix" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email Address (Optional)</label>
+                            <input type="email" name="email" id="email" class="form-control">
+                            <small id="email-error" class="text-danger"></small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number *</label>
+                            <div class="input-group">
+                                <input type="text"
+                                       name="phone"
+                                       id="phone"
+                                       class="form-control"
+                                       required
+                                       inputmode="numeric"
+                                       pattern="^(09\d{9}|639\d{9})$"
+                                       maxlength="12"
+                                       placeholder="e.g. 639XXXXXXXXX or 09XXXXXXXXX"
+                                       oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                                <button type="button" id="sendOtpBtn" class="btn btn-outline-primary">Send OTP</button>
+                            </div>
+                            <div class="text-muted small mt-1">Enter a valid PH mobile number (09XXXXXXXXX or 639XXXXXXXXX).</div>
+                            <small id="phone-error" class="text-danger"></small>
+                            <small id="otp-status" class="text-success"></small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="otp" class="form-label">OTP Code *</label>
+                            <input type="text" id="otp" class="form-control" maxlength="6" pattern="\d{6}" name="otp" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="avatar" class="form-label">Profile Picture (optional)</label>
+                            <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*">
+                            <img id="avatarPreview" src="" alt="avatar preview" style="max-width:120px; display:none; margin-top:8px;">
                         </div>
                     </div>
                     <div class="mt-4 d-flex justify-content-between">
@@ -91,7 +142,7 @@
                                 <option value="">Select Beneficiary Type</option>
                                 <option value="Senior Citizen">Senior Citizen</option>
                                 <option value="PWD">PWD</option>
-                                <option value="Both">Both</option>
+                                {{-- <option value="Both">Both</option> --}}
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -163,6 +214,7 @@
                         <h5 class="fw-bold">Account Summary</h5>
                         <div class="border rounded-3 p-3 bg-light">
                             <p><strong>Name:</strong> <span id="summary_name"></span></p>
+                            <p><strong>Suffix:</strong> <span id="summary_suffix"></span></p>
                             <p><strong>Email:</strong> <span id="summary_email"></span></p>
                             <p><strong>Phone:</strong> <span id="summary_phone"></span></p>
                             <p><strong>Beneficiary Type:</strong> <span id="summary_type"></span></p>
@@ -178,26 +230,25 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="username" class="form-label">Username *</label>
-                            <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username">
+                            <input type="text" name="username" id="username" class="form-control">
                             <small id="username-error" class="text-danger"></small>
                         </div>
                         <div class="col-md-6">
                             <label for="password" class="form-label">Password *</label>
                             <div class="input-group">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password">
+                                <input type="password" name="password" id="password" class="form-control">
                                 <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#password">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
-                            @error('password')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label for="password_confirmation" class="form-label">Confirm Password *</label>
                             <div class="input-group">
-                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Confirm your password">
-                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="#password_confirmation">
+                                <input type="password" name="password_confirmation" id="password_confirmation"
+                                       class="form-control">
+                                <button class="btn btn-outline-secondary toggle-password" type="button"
+                                        data-target="#password_confirmation">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -205,11 +256,7 @@
                     </div>
 
                     <div class="mb-3 mt-3">
-                        {!! NoCaptcha::renderJs() !!}
-                        {!! NoCaptcha::display() !!}
-                        @if ($errors->has('g-recaptcha-response'))
-                            <span class="text-danger">{{ $errors->first('g-recaptcha-response') }}</span>
-                        @endif
+                        @include('components.nocaptcha')
                     </div>
 
                     <div class="mt-4 d-flex justify-content-between">
@@ -228,17 +275,38 @@
     <div class="modal-content">
       <div class="modal-header bg-warning">
         <h5 class="modal-title">⚠ Warning</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body" id="warningMessage">
         Please fill out all required fields.
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="{{ asset('js/citizen-registration.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const avatar = document.getElementById('avatar');
+    const avatarPreview = document.getElementById('avatarPreview');
+    if (avatar) {
+        avatar.addEventListener('change', function (e) {
+            const f = e.target.files[0];
+            if (!f) { avatarPreview.style.display = 'none'; return; }
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                avatarPreview.src = ev.target.result;
+                avatarPreview.style.display = 'block';
+            };
+            reader.readAsDataURL(f);
+        });
+    }
+
+    // ...existing initialization scripts...
+});
+</script>
+
 @endsection

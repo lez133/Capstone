@@ -27,6 +27,14 @@ class Beneficiary extends Authenticatable
         'pwd_id',
         'password',
         'verified',
+        'assisted_by',
+        'otp_code',
+        'avatar',
+    ];
+
+    // Ensure otp_created_at is cast to a datetime/Carbon instance
+    protected $casts = [
+        'otp_created_at' => 'datetime',
     ];
 
     /**
@@ -35,5 +43,13 @@ class Beneficiary extends Authenticatable
     public function barangay()
     {
         return $this->belongsTo(Barangay::class, 'barangay_id');
+    }
+
+    /**
+     * Get all documents uploaded by the beneficiary.
+     */
+    public function documents()
+    {
+        return $this->hasMany(BeneficiaryDocument::class, 'beneficiary_id');
     }
 }

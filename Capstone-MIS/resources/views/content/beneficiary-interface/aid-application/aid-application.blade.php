@@ -17,19 +17,14 @@
     <!-- 🔍 Search & Filter -->
     <div class="row mb-3 g-2 aid-search-row">
         <div class="col-12 col-md-6 col-lg-4">
-            <input type="text" class="form-control" placeholder="Search by application type or ID...">
+            <input type="text" class="form-control" placeholder="Search by application type or ID..." id="searchInput">
         </div>
         <div class="col-6 col-md-3 col-lg-2">
-            <select class="form-select">
-                <option>All Status</option>
-                <option>Active</option>
-                <option>History</option>
+            <select class="form-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="history">History</option>
             </select>
-        </div>
-        <div class="col-6 col-md-3 col-lg-2 ms-auto text-end">
-            <a href="#" class="btn btn-primary fw-semibold px-4 py-2" style="background:#8b5cf6; border:none;">
-                <i class="bi bi-plus-lg me-1"></i> New Application
-            </a>
         </div>
     </div>
 
@@ -37,74 +32,38 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex flex-row gap-2">
-                <button class="btn aid-tab-btn active">Active (3)</button>
-                <button class="btn aid-tab-btn">History (2)</button>
+                <button class="btn aid-tab-btn active" id="activeTabBtn" data-tab="active">
+                    Active ({{ count($activeApplications) }})
+                </button>
+                <button class="btn aid-tab-btn" id="historyTabBtn" data-tab="history">
+                    History ({{ count($historyApplications) }})
+                </button>
             </div>
         </div>
     </div>
 
     <!-- 📝 Applications -->
-    <div class="row g-4">
-        @foreach($applications as $app)
+    <div class="row g-4" id="activeTab" data-tab-content="active">
+        @forelse($activeApplications as $app)
         <div class="col-12 col-md-6">
-            <div class="card aid-card shadow-sm border-0 h-100
-                {{ $app['status_type'] === 'primary' ? 'aid-card-primary' : 'aid-card-danger' }}">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="fw-bold mb-0">{{ $app['type'] }}</h5>
-                        <span class="badge bg-light text-{{ $app['status_type'] }} border border-{{ $app['status_type'] }} fw-semibold px-3 py-2">
-                            {{ $app['status_type'] === 'primary' ? '🗓️' : '✔️' }} {{ $app['status'] }}
-                        </span>
-                    </div>
-                    <span class="badge bg-secondary-subtle text-dark mb-2">{{ $app['id'] }}</span>
-                    <p class="mb-2 text-muted">{{ $app['description'] }}</p>
-
-                    <div class="mb-3">
-                        <div class="fw-semibold text-muted mb-1">Amount</div>
-                        <div class="{{ $app['status_type'] === 'primary' ? 'amount-box' : 'amount-box amount-box-success' }}">
-                            ₱{{ number_format($app['amount'], 0) }}
-                        </div>
-                        <div class="fw-semibold text-muted mb-1 mt-2">Progress</div>
-                        <div class="progress">
-                            <div class="progress-bar bg-{{ $app['status_type'] }}" style="width: {{ $app['progress'] }}%"></div>
-                        </div>
-                        <small class="text-muted">{{ $app['progress'] }}%</small>
-                    </div>
-
-                    <div class="row g-2 mb-2">
-                        <div class="col">
-                            <div class="fw-semibold text-muted">Applied</div>
-                            <div class="text-dark">{{ $app['applied'] }}</div>
-                        </div>
-                        <div class="col">
-                            <div class="fw-semibold text-muted">Last Update</div>
-                            <div class="text-dark">{{ $app['updated'] }}</div>
-                        </div>
-                    </div>
-
-                    @if($app['distribution_date'])
-                    <div class="distribution-date-box">
-                        <div class="fw-semibold text-muted mb-1">Distribution Date</div>
-                        <div class="fw-bold text-primary">{{ $app['distribution_date'] }}</div>
-                    </div>
-                    @endif
-
-                    @if($app['can_apply'])
-                    <a href="#"
-                       class="btn btn-primary mt-2 w-100 show-requirements-btn"
-                       data-requirements="{{ implode(',', $app['requirements']) }}"
-                       data-app="{{ $app['id'] }}">
-                        <i class="bi bi-check-circle me-1"></i> Apply Now
-                    </a>
-                    @else
-                    <div class="alert alert-info mt-2">
-                        Application opens on {{ $app['applied'] }}.
-                    </div>
-                    @endif
-                </div>
-            </div>
+            @include('partials.Beneficiarypartials.aid-application.application-card', ['app' => $app])
         </div>
-        @endforeach
+        @empty
+        <div class="col-12">
+            <div class="alert alert-info">No active applications found.</div>
+        </div>
+        @endforelse
+    </div>
+    <div class="row g-4 d-none" id="historyTab" data-tab-content="history">
+        @forelse($historyApplications as $app)
+        <div class="col-12 col-md-6">
+            @include('partials.Beneficiarypartials.aid-application.aid-application-history', ['app' => $app])
+        </div>
+        @empty
+        <div class="col-12">
+            <div class="alert alert-info">No history records found.</div>
+        </div>
+        @endforelse
     </div>
 </div>
 
@@ -129,28 +88,99 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // FIXED: Secure tab switching with data attributes
+    const tabButtons = document.querySelectorAll('[data-tab]');
+    const tabContents = document.querySelectorAll('[data-tab-content]');
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabName = this.getAttribute('data-tab');
+
+            // Update button states
+            tabButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update tab visibility
+            tabContents.forEach(content => {
+                if (content.getAttribute('data-tab-content') === tabName) {
+                    content.classList.remove('d-none');
+                } else {
+                    content.classList.add('d-none');
+                }
+            });
+        });
+    });
+
+    // FIXED: Secure requirements modal with proper XSS prevention
     document.querySelectorAll('.show-requirements-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Get requirements
-            const reqs = btn.getAttribute('data-requirements');
-            const reqArr = reqs ? reqs.split(',') : [];
-            let html = '<ul>';
-            if (reqArr.length && reqArr[0] !== '') {
-                reqArr.forEach(function(r) {
-                    html += '<li>' + r + '</li>';
+
+            // FIXED: Parse JSON instead of splitting by comma
+            const reqsJson = this.getAttribute('data-requirements-json');
+            let requirements = [];
+
+            try {
+                requirements = reqsJson ? JSON.parse(reqsJson) : [];
+            } catch (err) {
+                console.error('Invalid requirements format:', err);
+                requirements = [];
+            }
+
+            // FIXED: Use textContent instead of innerHTML for XSS prevention
+            const ul = document.createElement('ul');
+            if (requirements.length > 0) {
+                requirements.forEach(function(req) {
+                    const li = document.createElement('li');
+                    li.textContent = req; // FIXED: textContent is XSS-safe
+                    ul.appendChild(li);
                 });
             } else {
-                html += '<li>No requirements for this aid program.</li>';
+                const li = document.createElement('li');
+                li.textContent = 'No requirements for this aid program.';
+                ul.appendChild(li);
             }
-            html += '</ul>';
-            document.getElementById('requirementsModalBody').innerHTML = html;
+
+            // Clear and update modal
+            const modalBody = document.getElementById('requirementsModalBody');
+            modalBody.innerHTML = ''; // Safe to clear
+            modalBody.appendChild(ul);
 
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('requirementsModal'));
             modal.show();
         });
     });
+
+    // FIXED: Search functionality with XSS prevention
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+
+    function filterApplications() {
+        const searchTerm = String(searchInput.value).toLowerCase().trim();
+        const statusFilter = String(document.getElementById('statusFilter').value).toLowerCase().trim();
+
+        document.querySelectorAll('[data-tab-content] .col-12').forEach(col => {
+            const card = col.querySelector('.aid-card');
+            if (!card) return;
+
+            const appId = card.getAttribute('data-app-id') || '';
+            const appType = card.getAttribute('data-app-type') || '';
+            const appTab = col.closest('[data-tab-content]')?.getAttribute('data-tab-content') || '';
+
+            const matchesSearch = !searchTerm ||
+                appId.toLowerCase().includes(searchTerm) ||
+                appType.toLowerCase().includes(searchTerm);
+
+            const matchesStatus = !statusFilter || appTab === statusFilter;
+
+            col.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('keyup', filterApplications);
+    statusFilter.addEventListener('change', filterApplications);
 });
 </script>
 @endpush

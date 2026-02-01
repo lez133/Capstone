@@ -1,0 +1,182 @@
+.btn-back {
+    display: inline-block;
+    padding: 8px 14px;
+    background: linear-gradient(90deg, #4dabf7, #9775fa);
+    color: #fff;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transition: all 0.25s ease-in-out;
+}
+
+.btn-back:hover {
+    background: linear-gradient(90deg, #5c7cfa, #9775fa);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: #fff;
+}
+.fc-event-upcoming {
+    background-color: #a5d8ff !important; /* Light Blue */
+    border-color: #74c0fc !important;
+    color: #084c61 !important;
+}
+
+.fc-event-ongoing {
+    background-color: #c3f0ca !important; /* Soft Green */
+    border-color: #81c784 !important;
+    color: #1b4332 !important;
+}
+
+.fc-event-completed {
+    background-color: #e0c3fc !important; /* Soft Purple */
+    border-color: #b197fc !important;
+    color: #3c096c !important;
+}
+
+/* ======== CARD DESIGN ======== */
+.card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.card-header {
+    border-bottom: 0;
+    background: linear-gradient(90deg, #4dabf7, #9775fa);
+}
+
+.card-header h5 {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+/* ======== FULLCALENDAR TOOLBAR ======== */
+.fc-toolbar {
+    flex-wrap: wrap !important;
+}
+
+.fc-toolbar-chunk button {
+    border-radius: 20px !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    color: #495057 !important;
+    transition: all 0.2s ease;
+}
+
+.fc-toolbar-chunk button:hover {
+    background-color: #4dabf7 !important;
+    color: #fff !important;
+}
+
+.fc .fc-toolbar-title {
+    font-weight: 700;
+    color: #212529;
+    font-size: 1.2rem;
+}
+
+/* ======== LIST VIEW ======== */
+.fc-list-event {
+    border: none !important;
+    border-radius: 12px !important;
+    margin: 8px 0 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 10px 12px;
+    background-color: #fff !important;
+}
+
+.fc-list-event:hover {
+    background-color: #f8f9fa !important;
+    transform: scale(1.01);
+    transition: all 0.2s ease-in-out;
+}
+
+/* ======== STATUS BADGES ======== */
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.status-upcoming {
+    background-color: #74c0fc;
+    color: #084c61;
+}
+
+.status-ongoing {
+    background-color: #81c784;
+    color: #1b4332;
+}
+
+.status-completed {
+    background-color: #b197fc;
+    color: #3c096c;
+}
+
+.event-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.event-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* ======== MODAL STYLING ======== */
+.modal-content {
+    border-radius: 15px;
+    overflow: hidden;
+}
+.modal-header {
+    border-bottom: none;
+}
+.modal-body {
+    background-color: #f8f9fa;
+}
+.list-group-item {
+    font-size: 0.95rem;
+}
+
+/* ======== MOBILE OPTIMIZATION ======== */
+@media (max-width: 768px) {
+    .btn-back {
+        width: 100%;
+        text-align: center;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+    .card-body {
+        padding: 0.5rem;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .fc-toolbar-chunk {
+        text-align: center;
+        width: 100%;
+    }
+
+    .fc-toolbar-chunk button {
+        margin: 2px 3px !important;
+        font-size: 0.8rem !important;
+        padding: 4px 8px !important;
+    }
+
+    /* Auto switch to list view */
+    .fc .fc-view-harness {
+        min-height: 600px !important;
+    }
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}

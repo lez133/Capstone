@@ -26,15 +26,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Step 2 -> Step 3
     document.getElementById("next-step2").addEventListener("click", async () => {
+        const nextBtn = document.getElementById("next-step2");
+        nextBtn.disabled = true; // Disable button during validation
+
         const errors = validateStep2();
-        if (errors.length) return showModal(errors.join("\n"));
+        if (errors.length) {
+            showModal(errors.join("\n"));
+            nextBtn.disabled = false;
+            return;
+        }
+
+        const contact = document.getElementById("contact").value.trim();
+        const validContact = await checkUnique("contact", contact);
+        if (!validContact) {
+            showModal("Contact number is already taken.");
+            nextBtn.disabled = false;
+            return;
+        }
 
         const email = document.getElementById("email").value.trim();
-        const valid = await checkUnique("email", email);
-        if (!valid) return showModal("Email is already taken.");
+        const validEmail = await checkUnique("email", email);
+        if (!validEmail) {
+            showModal("Email is already taken.");
+            nextBtn.disabled = false;
+            return;
+        }
 
         step3Tab.disabled = false;
         step3Tab.click();
+        nextBtn.disabled = false; // Re-enable after success
     });
 
     // Previous buttons
@@ -131,8 +151,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function validateStep2() {
         const errors = [];
-        if (!document.getElementById("contact").value.trim()) errors.push("Contact number required.");
-        if (!document.getElementById("email").value.trim()) errors.push("Email required.");
+        let contact = document.getElementById("contact").value.trim();
+        const email = document.getElementById("email").value.trim();
+
+        // Force 639 format if entered as 09XXXXXXXXX
+        if (/^09\d{9}$/.test(contact)) {
+            contact = "63" + contact.substring(1);
+            document.getElementById("contact").value = contact;
+        }
+
+        // Validate PH number format (only 639XXXXXXXXX allowed after conversion)
+        if (!/^639\d{9}$/.test(contact)) {
+            errors.push("Contact number must be a valid PH mobile number (639XXXXXXXXX).");
+        }
+
+        // Email is optional, but must be valid if provided
+        if (email && !/^[\w\.-]+@[\w\.-]+\.\w{2,}$/.test(email)) {
+            errors.push("Email must be a valid email address.");
+        }
+
         return errors;
     }
 

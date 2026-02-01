@@ -7,7 +7,7 @@
     <h1 class="mb-4">Manage Beneficiaries</h1>
 
     <div class="mt-4">
-        <a href="{{ route('senior-citizens.select-barangay') }}" class="btn btn-secondary">
+        <a href="{{ route('beneficiaries.interface', ['encryptedBarangayId' => encrypt($barangay->id)]) }}" class="btn btn-secondary">
             <i class="fa fa-arrow-left"></i> Back to Barangays
         </a>
     </div>

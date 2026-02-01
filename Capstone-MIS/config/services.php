@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -36,9 +35,14 @@ return [
     ],
 
     'google' => [
-    'client_id' => env('GOOGLE_CLIENT_ID'),
-    'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    'redirect' => env('GOOGLE_REDIRECT_URI'),
-  ]
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
 
+    'philsms' => [
+        'base'           => env('PHILSMS_API_BASE', 'https://dashboard.philsms.com/api/v3/'),
+        'token'          => env('PHILSMS_API_TOKEN'),
+        'default_sender' => env('PHILSMS_DEFAULT_SENDER'),
+    ],
 ];

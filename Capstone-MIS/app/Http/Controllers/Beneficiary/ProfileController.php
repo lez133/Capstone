@@ -9,18 +9,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Beneficiary;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Show the profile management page.
-     */
+
     public function index()
     {
         $userId = Auth::guard('beneficiary')->id();
         $beneficiary = Beneficiary::with('barangay')->find($userId);
 
-        // prepare display values
         $barangayName = optional($beneficiary->barangay)->barangay_name ?? 'N/A';
 
         $osca = $beneficiary->osca_number ?? null;
@@ -68,30 +66,103 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the profile information.
+     * Update basic profile fields (name, phone, birthday).
      */
     public function update(Request $request)
     {
-        $user = Beneficiary::find(Auth::guard('beneficiary')->id());
+        $user = Beneficiary::findOrFail(Auth::guard('beneficiary')->id());
 
-        $request->validate([
-            'username' => ['required','string','max:50', Rule::unique('beneficiaries','username')->ignore($user->id)],
-            'current_password' => ['required','string'],
-            'password' => ['nullable','string','min:8','confirmed'],
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'required|string|max:100',
+            'phone'      => ['nullable','string','max:20'],
+            'birthday'   => ['nullable','date'],
         ]);
 
-        if (! Hash::check($request->input('current_password'), $user->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        // normalize phone (optional): keep as-is or normalize to 639...
+        $phone = trim($validated['phone'] ?? '');
+        if ($phone) {
+            // attempted normalization: 09XXXXXXXXX -> 639XXXXXXXXX
+            if (preg_match('/^09\d{9}$/', $phone)) {
+                $phone = '63' . substr($phone, 1);
+            }
+        } else {
+            $phone = null;
         }
 
-        $user->username = $request->input('username');
-
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->input('password'));
-        }
+        $user->first_name = $validated['first_name'];
+        $user->last_name = $validated['last_name'];
+        $user->phone = $phone;
+        $user->birthday = $validated['birthday'] ?? null;
 
         $user->save();
 
         return back()->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Change password (requires current password).
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = Beneficiary::findOrFail(Auth::guard('beneficiary')->id());
+
+        $data = $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (! Hash::check($data['current_password'], $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        $user->password = Hash::make($data['password']);
+        $user->save();
+
+        return back()->with('success', 'Password changed successfully.');
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $user = Beneficiary::findOrFail(Auth::guard('beneficiary')->id());
+
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $file = $request->file('avatar');
+        $path = $file->store('avatars', 'public');
+
+        // delete old avatar if exists
+        if ($user->avatar) {
+            try {
+                Storage::disk('public')->delete($user->avatar);
+            } catch (\Throwable $e) {
+                // ignore deletion errors
+            }
+        }
+
+        $user->avatar = $path;
+        $user->save();
+
+        return back()->with('success', 'Avatar updated.');
+    }
+
+    public function resetAvatar(Request $request)
+    {
+        $user = Beneficiary::findOrFail(Auth::guard('beneficiary')->id());
+
+        if ($user->avatar) {
+            try {
+                Storage::disk('public')->delete($user->avatar);
+            } catch (\Throwable $e) {
+                // ignore deletion errors
+            }
+        }
+
+        $user->avatar = null;
+        $user->save();
+
+        return back()->with('success', 'Avatar reset to default.');
     }
 }

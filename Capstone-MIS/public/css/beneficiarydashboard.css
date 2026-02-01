@@ -1,7 +1,83 @@
+/* Page background */
+.dashboard-page {
+    background: linear-gradient(180deg, #f6fbff 0%, #f3f7ff 45%, #f8fafc 100%);
+    min-height: 100vh;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+/* Card visuals */
 .dashboard-card {
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative; /* needed for ::before accent */
+    border-radius: 1rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.98));
+    box-shadow: 0 6px 24px rgba(12,40,80,0.06);
+    border: 1px solid rgba(13,110,253,0.06);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s;
+    overflow: hidden;
+}
+
+.dashboard-card::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, #ff8a3d, #ff6b21);
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+    z-index: 1;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 48px rgba(12,40,80,0.10);
+    border-color: rgba(13,110,253,0.12);
+}
+
+/* Card header */
+.card-header {
+    background: linear-gradient(90deg, rgba(243,246,255,0.7), rgba(255,250,245,0.55));
+    font-size: 1.05rem;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    color: #0f1724;
+    position: relative;
+    z-index: 2;
+}
+
+/* Personal avatar */
+.personal-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffffff;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+    margin-bottom: 0.5rem;
+}
+
+/* Quick action buttons */
+.quick-action-btn {
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    border-radius: 1.6rem;
+    background: linear-gradient(90deg,#0d6efd,#2962ff);
+    color: #fff;
+    border: none;
+    box-shadow: 0 8px 22px rgba(13,110,253,0.12);
+}
+.quick-action-btn.btn-outline-secondary {
+    background: linear-gradient(90deg,#ffffff,#f7f9fc);
+    color: #212529;
+    border: 1px solid rgba(33,37,41,0.06);
+}
+
+/* Existing dashboard-card adjustments (kept from previous file) */
+.dashboard-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -10,21 +86,18 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
+/* Row spacing tweaks */
 .row.g-3 {
     --bs-gutter-y: 0.5rem;  /* tighter vertical spacing */
     --bs-gutter-x: 0.75rem;
 }
 
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
+/* Ensure card-body grows */
 .card-body {
     flex: 1 1 auto;
 }
 
-/* Make buttons modern */
+/* Buttons modern style */
 .btn {
     font-weight: 500;
     padding: 0.6rem 1rem;
@@ -38,9 +111,115 @@
 
 /* Table styling */
 .table thead th {
-    font-weight: 600;
+    background: rgba(245,249,255,0.8);
+    font-weight: 700;
 }
 
 .table-hover tbody tr:hover {
     background-color: #f9fafb;
 }
+
+/* Responsive spacing tweaks */
+@media (max-width: 991.98px) {
+    .dashboard-card::before { width: 4px; }
+    .personal-avatar { width: 56px; height: 56px; }
+}
+
+/* Dashboard personal header (uses inline background-image from Blade) */
+.dashboard-personal-header {
+    position: relative;
+    overflow: hidden;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    color: #fff;
+    padding: 1.25rem 1rem; /* slightly more padding to give the header space */
+    min-height: 120px;
+    display: flex;
+    align-items: flex-end;
+    gap: .75rem;
+    z-index: 1;
+}
+
+/* stronger overlay so header text stands out more */
+.dashboard-personal-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.32), rgba(0,0,0,0.08));
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ensure header content sits above overlay */
+.dashboard-personal-header > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* make title/subtitle much more noticeable */
+.dashboard-personal-header .fw-semibold {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #0b1220; /* dark text */
+    letter-spacing: 0.2px;
+    text-shadow: 0 6px 20px rgba(0,0,0,0.45);
+}
+
+/* Ensure the "Your account summary" subtitle is dark even if utility classes are present */
+.dashboard-personal-header .small,
+.dashboard-personal-header .small.text-white-50,
+.dashboard-personal-header .card-subtitle,
+.dashboard-personal-header .card-subtitle.text-white-50 {
+    color: #0b1220 !important; /* dark subtitle */
+    font-weight: 600;
+    opacity: 1;
+    text-shadow: none;
+    font-size: .88rem;
+}
+
+/* icon color boost */
+.dashboard-personal-header .bi {
+    color: #fff !important;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
+    font-size: 1.25rem;
+}
+
+/* Status badge accent (small dot + spacing) */
+.status-badge{
+    position: relative;
+    padding-left: .9rem; /* room for the dot */
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-weight: 600;
+}
+
+/* small colored dot on the left of the badge */
+.status-badge::before{
+    content: "";
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    position: absolute;
+    left: .45rem;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 6px rgba(0,0,0,0.03);
+}
+
+/* color accents by status key */
+.status-badge[data-status="verified"]::before,
+.status-badge[data-status="validated"]::before{ background: #198754; } /* green */
+.status-badge[data-status="pending"]::before,
+.status-badge[data-status="pending review"]::before{ background: #ffc107; } /* yellow */
+.status-badge[data-status="rejected"]::before,
+.status-badge[data-status="action required"]::before{ background: #dc3545; } /* red */
+.status-badge[data-status=""]::before,
+.status-badge[data-status="unknown"]::before,
+.status-badge[data-status="other"]::before{ background: #6c757d; } /* gray */
+
+/* ensure good contrast for warning badges */
+.status-badge.bg-warning.text-dark { color: #212529 !important; }
+
+/* small spacing fix in list items */
+.list-group-item .status-badge { margin-left: .5rem; }

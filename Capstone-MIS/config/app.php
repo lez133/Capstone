@@ -16,7 +16,7 @@ return [
     |
     */
 
-  'name' => env('APP_NAME', 'Laravel'),
+  'name' => env('APP_NAME', 'MSWD'),
 
   /*
     |--------------------------------------------------------------------------
@@ -186,5 +186,6 @@ return [
     // 'Example' => App\Facades\Example::class,
     'NoCaptcha' => Anhskohbo\NoCaptcha\Facades\NoCaptcha::class,
   ])->toArray(),
+
 
 ];

@@ -4,6 +4,12 @@
 
 @section('content')
 <div class="container mt-4">
+    <div class="mb-3">
+        <a href="{{ route('programs.index') }}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back to Programs
+        </a>
+    </div>
+
     <div class="card mb-4">
         <div class="card-header bg-secondary text-white">
             <h5 class="mb-0">Manage Requirements</h5>
@@ -99,21 +105,26 @@
 
 <!-- Delete Requirement Modal -->
 <div class="modal fade" id="deleteRequirementModal" tabindex="-1" aria-labelledby="deleteRequirementModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
     <form method="POST" id="deleteRequirementForm" class="modal-content">
         @csrf
         @method('DELETE')
-        <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title" id="deleteRequirementModalLabel">Delete Requirement</h5>
+        <div class="modal-header border-0 pb-0">
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete this requirement?</p>
-        </div>
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-danger">
-                <i class="fas fa-trash"></i> Delete
-            </button>
+        <div class="modal-body text-center py-4">
+            <div class="mb-3">
+                <span class="d-inline-block rounded-circle bg-danger bg-opacity-10 p-3">
+                    <i class="fas fa-exclamation-triangle text-danger fa-2x"></i>
+                </span>
+            </div>
+            <h5 class="fw-bold">Are you sure?</h5>
+            <p class="text-muted small mb-3">This action cannot be undone.</p>
+            <p id="deleteRequirementName" class="fw-semibold mb-3"></p>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-danger btn-lg">Delete Requirement</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
         </div>
     </form>
   </div>
@@ -136,8 +147,11 @@ document.addEventListener('DOMContentLoaded', function () {
     deleteModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
         var reqId = button.getAttribute('data-id');
+        var reqName = button.getAttribute('data-name');
         var form = document.getElementById('deleteRequirementForm');
+        var reqNameLabel = document.getElementById('deleteRequirementName');
         form.action = "{{ url('programs/requirements') }}/" + reqId;
+        reqNameLabel.textContent = reqName;
     });
 });
 </script>

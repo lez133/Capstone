@@ -1,0 +1,9 @@
+.progress-bar {
+    width: var(--progress, 0%);
+    transition: width 400ms ease;
+    min-width: 0;
+}
+
+.progress {
+    overflow: hidden;
+}

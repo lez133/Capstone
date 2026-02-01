@@ -20,7 +20,13 @@
                     </div>
                     <h3 class="fw-bold mb-1 text-success">{{ $stats['validated'] }}</h3>
                     <div class="progress" style="height:6px;">
-                        <div class="progress-bar bg-success" style="width:{{ $stats['completion'] }}%"></div>
+                        <div class="progress-bar bg-success"
+                             role="progressbar"
+                             style="--progress: {{ $stats['completion'] }}%;"
+                             aria-valuenow="{{ $stats['completion'] }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -72,6 +78,7 @@
       <div class="modal-dialog">
         <form method="POST" action="{{ route('beneficiaries.documents.submit') }}" enctype="multipart/form-data" class="modal-content">
           @csrf
+          <input type="hidden" name="return_url" value="{{ url()->full() }}">
           <div class="modal-header">
             <h5 class="modal-title" id="submitDocumentModalLabel">Submit Document</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -98,12 +105,21 @@
     <div class="mb-4">
         @forelse($documents as $document)
             <div class="card shadow-sm border-0 mb-4 document-card">
-                <div class="card-body">
+                <div class="card-body position-relative pb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
                             <span class="fw-bold fs-5">{{ $document->document_type }}</span>
-                            <span class="badge bg-primary-subtle text-primary ms-2">Identification</span>
-                            <span class="text-muted ms-2">DOC-{{ $document->id }}</span>
+                            <span class="badge bg-primary-subtle text-primary ms-2">Document</span>
+
+                            {{-- new: show associated aid program(s) the document was submitted to --}}
+                            @if(!empty($document->associated_programs) && count($document->associated_programs) > 0)
+                                <div class="mt-2">
+                                    <small class="text-muted">Submitted to:</small>
+                                    @foreach($document->associated_programs as $progName)
+                                        <span class="badge bg-secondary-subtle text-dark ms-1">{{ $progName }}</span>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                         <span class="badge
                             @if($document->status === 'Validated') bg-success-subtle text-success
@@ -122,7 +138,28 @@
                     <div class="row g-2 mb-2">
                         <div class="col">
                             <div class="fw-semibold text-muted">Uploaded</div>
-                            <div class="text-dark">{{ $document->uploaded_at ? \Carbon\Carbon::parse($document->uploaded_at)->format('m/d/Y') : '-' }}</div>
+                            <div class="text-dark">
+                                @php
+                                    // Prefer submission date embedded in associated_programs labels (if present), otherwise use document uploaded_at
+                                    $uploadedDate = null;
+                                    if (!empty($document->associated_programs) && is_array($document->associated_programs)) {
+                                        foreach ($document->associated_programs as $label) {
+                                            if (is_string($label) && preg_match('/\((\d{1,2}\/\d{1,2}\/\d{4})\)$/', $label, $m)) {
+                                                $uploadedDate = $m[1];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (empty($uploadedDate) && !empty($document->uploaded_at)) {
+                                        try {
+                                            $uploadedDate = \Carbon\Carbon::parse($document->uploaded_at)->format('m/d/Y');
+                                        } catch (\Throwable $e) {
+                                            $uploadedDate = null;
+                                        }
+                                    }
+                                @endphp
+                                {{ $uploadedDate ?? '-' }}
+                            </div>
                         </div>
                         <div class="col">
                             <div class="fw-semibold text-muted">Validated</div>
@@ -135,16 +172,41 @@
                             <div class="text-purple">-</div>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <a href="{{ route('beneficiaries.documents.download', $document->id) }}" class="btn btn-light border rounded-pill px-4">
-                            <i class="bi bi-download me-1"></i> Download
-                        </a>
+                    {{-- Buttons positioned bottom-right of the card --}}
+                    <div class="position-absolute end-0 bottom-0 p-3">
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('beneficiaries.documents.view', $document->id) }}" target="_blank" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-eye me-1"></i> View
+                            </a>
+                            <a href="{{ route('beneficiaries.documents.download', $document->id) }}" class="btn btn-light border rounded-pill px-4">
+                                <i class="bi bi-download me-1"></i> Download
+                            </a>
+                        </div>
                     </div>
-                </div>
+                 </div>
             </div>
         @empty
             <div class="alert alert-info">No documents submitted yet.</div>
         @endforelse
+
+        {{-- Simple Previous / Next pagination --}}
+        @if(method_exists($documents, 'lastPage') && $documents->lastPage() > 1)
+            <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+                @if($documents->onFirstPage())
+                    <button class="btn btn-secondary" disabled>Previous</button>
+                @else
+                    <a href="{{ $documents->previousPageUrl() }}" class="btn btn-primary">Previous</a>
+                @endif
+
+                <span class="text-muted">Page {{ $documents->currentPage() }} of {{ $documents->lastPage() }}</span>
+
+                @if($documents->hasMorePages())
+                    <a href="{{ $documents->nextPageUrl() }}" class="btn btn-primary">Next</a>
+                @else
+                    <button class="btn btn-secondary" disabled>Next</button>
+                @endif
+            </div>
+        @endif
     </div>
 </div>
 @endsection

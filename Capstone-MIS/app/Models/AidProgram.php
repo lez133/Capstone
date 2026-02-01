@@ -20,6 +20,16 @@ class AidProgram extends Model
 
     public function requirements()
     {
-        return $this->belongsToMany(Requirement::class, 'aid_program_requirement');
+        return $this->belongsToMany(Requirement::class, 'aid_program_requirement', 'aid_program_id', 'requirement_id')
+            ->withTimestamps();
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'aid_program_id');
+    }
+    public function beneficiaries()
+    {
+        return $this->belongsToMany(Beneficiary::class, 'aid_program_beneficiary', 'aid_program_id', 'beneficiary_id');
     }
 }

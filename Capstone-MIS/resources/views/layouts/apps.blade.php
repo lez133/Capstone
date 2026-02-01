@@ -12,14 +12,15 @@
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body>
+<body data-login-error="{{ $errors->has('username') ? 'true' : 'false' }}">
     @yield('content')
-
 
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/LoginInterface.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="{{ asset('js/LoginInterface.js') }}"></script>
+    <script src="{{ asset('js/navbar-toggle.js') }}"></script>
+
     <script>
         AOS.init();
     </script>
